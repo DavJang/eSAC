@@ -1,0 +1,12 @@
+ianxz6zefk72ulzz\.onion:drop
+\.su$:drop
+\.top$:drop
+\.to$:drop
+\.cc$:drop
+tun\.vpnoverdns\.com$:drop
+\.tk$:drop
+\.pw$:drop
+empty:drop
+micorsofts\.net$:drop
+hotmal1\.com$:drop
+micorsofts\.com$:drop

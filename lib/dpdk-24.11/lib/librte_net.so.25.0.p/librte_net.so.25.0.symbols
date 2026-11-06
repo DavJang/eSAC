@@ -1,0 +1,10 @@
+ 0x000000000000000e (SONAME)             Library soname: [librte_net.so.25]
+DPDK_25 A
+rte_ether_format_addr@@DPDK_25 T
+rte_ether_unformat_addr@@DPDK_25 T
+rte_eth_random_addr@@DPDK_25 T
+rte_net_crc_calc@@DPDK_25 T
+rte_net_crc_set_alg@@DPDK_25 T
+rte_net_get_ptype@@DPDK_25 T
+rte_net_make_rarp_packet@@DPDK_25 T
+rte_net_skip_ip6_ext@@DPDK_25 T

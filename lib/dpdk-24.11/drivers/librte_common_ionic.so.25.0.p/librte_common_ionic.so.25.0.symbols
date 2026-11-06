@@ -1,0 +1,6 @@
+ 0x000000000000000e (SONAME)             Library soname: [librte_common_ionic.so.25]
+INTERNAL A
+ionic_uio_get_rsrc@@INTERNAL T
+ionic_uio_rel_rsrc@@INTERNAL T
+ionic_uio_scan_mcrypt_devices@@INTERNAL T
+ionic_uio_scan_mnet_devices@@INTERNAL T

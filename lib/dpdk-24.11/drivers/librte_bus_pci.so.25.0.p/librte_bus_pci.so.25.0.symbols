@@ -1,0 +1,24 @@
+ 0x000000000000000e (SONAME)             Library soname: [librte_bus_pci.so.25]
+DPDK_25 A
+EXPERIMENTAL A
+INTERNAL A
+rte_pci_dump@@DPDK_25 T
+rte_pci_find_capability@@EXPERIMENTAL T
+rte_pci_find_ext_capability@@EXPERIMENTAL T
+rte_pci_find_next_capability@@EXPERIMENTAL T
+rte_pci_get_sysfs_path@@INTERNAL T
+rte_pci_has_capability_list@@EXPERIMENTAL T
+rte_pci_ioport_map@@DPDK_25 T
+rte_pci_ioport_read@@DPDK_25 T
+rte_pci_ioport_unmap@@DPDK_25 T
+rte_pci_ioport_write@@DPDK_25 T
+rte_pci_map_device@@DPDK_25 T
+rte_pci_mmio_read@@EXPERIMENTAL T
+rte_pci_mmio_write@@EXPERIMENTAL T
+rte_pci_pasid_set_state@@INTERNAL T
+rte_pci_read_config@@DPDK_25 T
+rte_pci_register@@INTERNAL T
+rte_pci_set_bus_master@@EXPERIMENTAL T
+rte_pci_unmap_device@@DPDK_25 T
+rte_pci_unregister@@INTERNAL T
+rte_pci_write_config@@DPDK_25 T

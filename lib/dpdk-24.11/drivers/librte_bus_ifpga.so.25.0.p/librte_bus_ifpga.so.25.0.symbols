@@ -1,0 +1,5 @@
+ 0x000000000000000e (SONAME)             Library soname: [librte_bus_ifpga.so.25]
+INTERNAL A
+rte_ifpga_driver_register@@INTERNAL T
+rte_ifpga_driver_unregister@@INTERNAL T
+rte_ifpga_find_afu_by_name@@INTERNAL T

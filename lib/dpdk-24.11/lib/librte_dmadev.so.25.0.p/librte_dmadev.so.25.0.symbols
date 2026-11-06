@@ -1,0 +1,30 @@
+ 0x000000000000000e (SONAME)             Library soname: [librte_dmadev.so.25]
+DPDK_25 A
+EXPERIMENTAL A
+INTERNAL A
+rte_dma_close@@DPDK_25 T
+rte_dma_configure@@DPDK_25 T
+rte_dma_count_avail@@DPDK_25 T
+rte_dma_dev_max@@DPDK_25 T
+rte_dma_dump@@DPDK_25 T
+rte_dma_fp_objs@@INTERNAL B 8
+rte_dma_get_dev_id_by_name@@DPDK_25 T
+rte_dma_info_get@@DPDK_25 T
+rte_dma_is_valid@@DPDK_25 T
+rte_dma_next_dev@@DPDK_25 T
+rte_dma_pmd_allocate@@INTERNAL T
+rte_dma_pmd_get_dev_by_id@@INTERNAL T
+rte_dma_pmd_release@@INTERNAL T
+rte_dma_start@@DPDK_25 T
+rte_dma_stats_get@@DPDK_25 T
+rte_dma_stats_reset@@DPDK_25 T
+rte_dma_stop@@DPDK_25 T
+__rte_dma_trace_burst_capacity@@EXPERIMENTAL D 8
+__rte_dma_trace_completed@@EXPERIMENTAL D 8
+__rte_dma_trace_completed_status@@EXPERIMENTAL D 8
+__rte_dma_trace_copy@@EXPERIMENTAL D 8
+__rte_dma_trace_copy_sg@@EXPERIMENTAL D 8
+__rte_dma_trace_fill@@EXPERIMENTAL D 8
+__rte_dma_trace_submit@@EXPERIMENTAL D 8
+rte_dma_vchan_setup@@DPDK_25 T
+rte_dma_vchan_status@@DPDK_25 T

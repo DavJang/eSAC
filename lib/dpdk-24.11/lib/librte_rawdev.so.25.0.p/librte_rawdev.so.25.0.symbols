@@ -1,0 +1,32 @@
+ 0x000000000000000e (SONAME)             Library soname: [librte_rawdev.so.25]
+DPDK_25 A
+rte_rawdev_close@@DPDK_25 T
+rte_rawdev_configure@@DPDK_25 T
+rte_rawdev_count@@DPDK_25 T
+rte_rawdev_dequeue_buffers@@DPDK_25 T
+rte_rawdev_dump@@DPDK_25 T
+rte_rawdev_enqueue_buffers@@DPDK_25 T
+rte_rawdev_firmware_load@@DPDK_25 T
+rte_rawdev_firmware_status_get@@DPDK_25 T
+rte_rawdev_firmware_unload@@DPDK_25 T
+rte_rawdev_firmware_version_get@@DPDK_25 T
+rte_rawdev_get_attr@@DPDK_25 T
+rte_rawdev_get_dev_id@@DPDK_25 T
+rte_rawdev_info_get@@DPDK_25 T
+rte_rawdev_pmd_allocate@@DPDK_25 T
+rte_rawdev_pmd_release@@DPDK_25 T
+rte_rawdev_queue_conf_get@@DPDK_25 T
+rte_rawdev_queue_count@@DPDK_25 T
+rte_rawdev_queue_release@@DPDK_25 T
+rte_rawdev_queue_setup@@DPDK_25 T
+rte_rawdev_reset@@DPDK_25 T
+rte_rawdevs@@DPDK_25 D 8
+rte_rawdev_selftest@@DPDK_25 T
+rte_rawdev_set_attr@@DPDK_25 T
+rte_rawdev_socket_id@@DPDK_25 T
+rte_rawdev_start@@DPDK_25 T
+rte_rawdev_stop@@DPDK_25 T
+rte_rawdev_xstats_by_name_get@@DPDK_25 T
+rte_rawdev_xstats_get@@DPDK_25 T
+rte_rawdev_xstats_names_get@@DPDK_25 T
+rte_rawdev_xstats_reset@@DPDK_25 T

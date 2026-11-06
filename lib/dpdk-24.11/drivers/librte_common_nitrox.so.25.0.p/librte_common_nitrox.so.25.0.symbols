@@ -1,0 +1,5 @@
+ 0x000000000000000e (SONAME)             Library soname: [librte_common_nitrox.so.25]
+INTERNAL A
+nitrox_logtype@@INTERNAL B 4
+nitrox_qp_release@@INTERNAL T
+nitrox_qp_setup@@INTERNAL T

@@ -1,0 +1,9 @@
+# Large prebuilt binaries tracked via Git LFS (clone-and-run artifact)
+agent/*.so            filter=lfs diff=lfs merge=lfs -text
+tamper_sentinel/bin/* filter=lfs diff=lfs merge=lfs -text
+suricata/bin/suricata filter=lfs diff=lfs merge=lfs -text
+traffic/dperf         filter=lfs diff=lfs merge=lfs -text
+traffic/dperf_*       filter=lfs diff=lfs merge=lfs -text
+apps/redis/redis-server filter=lfs diff=lfs merge=lfs -text
+apps/nginx/nginx      filter=lfs diff=lfs merge=lfs -text
+lib/runtime/*.so*     filter=lfs diff=lfs merge=lfs -text

@@ -1,0 +1,147 @@
+ 0x000000000000000e (SONAME)             Library soname: [librte_eventdev.so.25]
+DPDK_25 A
+event_dev_fp_ops_reset@@INTERNAL T
+event_dev_fp_ops_set@@INTERNAL T
+event_dev_probing_finish@@INTERNAL T
+EXPERIMENTAL A
+INTERNAL A
+rte_event_crypto_adapter_caps_get@@DPDK_25 T
+rte_event_crypto_adapter_create@@DPDK_25 T
+rte_event_crypto_adapter_create_ext@@DPDK_25 T
+rte_event_crypto_adapter_event_port_get@@DPDK_25 T
+rte_event_crypto_adapter_free@@DPDK_25 T
+rte_event_crypto_adapter_queue_pair_add@@DPDK_25 T
+rte_event_crypto_adapter_queue_pair_del@@DPDK_25 T
+rte_event_crypto_adapter_runtime_params_get@@EXPERIMENTAL T
+rte_event_crypto_adapter_runtime_params_init@@EXPERIMENTAL T
+rte_event_crypto_adapter_runtime_params_set@@EXPERIMENTAL T
+rte_event_crypto_adapter_service_id_get@@DPDK_25 T
+rte_event_crypto_adapter_start@@DPDK_25 T
+rte_event_crypto_adapter_stats_get@@DPDK_25 T
+rte_event_crypto_adapter_stats_reset@@DPDK_25 T
+rte_event_crypto_adapter_stop@@DPDK_25 T
+rte_event_crypto_adapter_vector_limits_get@@DPDK_25 T
+rte_event_dequeue_timeout_ticks@@DPDK_25 T
+rte_event_dev_attr_get@@DPDK_25 T
+rte_event_dev_close@@DPDK_25 T
+rte_event_dev_configure@@DPDK_25 T
+rte_event_dev_count@@DPDK_25 T
+rte_event_dev_dump@@DPDK_25 T
+rte_event_dev_get_dev_id@@DPDK_25 T
+rte_event_dev_info_get@@DPDK_25 T
+rte_eventdevs@@INTERNAL D 8
+rte_event_dev_selftest@@DPDK_25 T
+rte_event_dev_service_id_get@@DPDK_25 T
+rte_event_dev_socket_id@@DPDK_25 T
+rte_event_dev_start@@DPDK_25 T
+rte_event_dev_stop@@DPDK_25 T
+rte_event_dev_stop_flush_callback_register@@DPDK_25 T
+__rte_eventdev_trace_crypto_adapter_enqueue@@DPDK_25 D 8
+__rte_eventdev_trace_deq_burst@@DPDK_25 D 8
+__rte_eventdev_trace_enq_burst@@DPDK_25 D 8
+__rte_eventdev_trace_eth_tx_adapter_enqueue@@DPDK_25 D 8
+__rte_eventdev_trace_maintain@@DPDK_25 D 8
+__rte_eventdev_trace_port_preschedule@@EXPERIMENTAL D 8
+__rte_eventdev_trace_port_preschedule_modify@@EXPERIMENTAL D 8
+__rte_eventdev_trace_port_profile_switch@@EXPERIMENTAL D 8
+__rte_eventdev_trace_timer_arm_burst@@DPDK_25 D 8
+__rte_eventdev_trace_timer_arm_tmo_tick_burst@@DPDK_25 D 8
+__rte_eventdev_trace_timer_cancel_burst@@DPDK_25 D 8
+rte_event_dev_xstats_by_name_get@@DPDK_25 T
+rte_event_dev_xstats_get@@DPDK_25 T
+rte_event_dev_xstats_names_get@@DPDK_25 T
+rte_event_dev_xstats_reset@@DPDK_25 T
+rte_event_dma_adapter_caps_get@@EXPERIMENTAL T
+rte_event_dma_adapter_create@@EXPERIMENTAL T
+rte_event_dma_adapter_create_ext@@EXPERIMENTAL T
+rte_event_dma_adapter_enqueue@@EXPERIMENTAL T
+rte_event_dma_adapter_event_port_get@@EXPERIMENTAL T
+rte_event_dma_adapter_free@@EXPERIMENTAL T
+rte_event_dma_adapter_runtime_params_get@@EXPERIMENTAL T
+rte_event_dma_adapter_runtime_params_init@@EXPERIMENTAL T
+rte_event_dma_adapter_runtime_params_set@@EXPERIMENTAL T
+rte_event_dma_adapter_service_id_get@@EXPERIMENTAL T
+rte_event_dma_adapter_start@@EXPERIMENTAL T
+rte_event_dma_adapter_stats_get@@EXPERIMENTAL T
+rte_event_dma_adapter_stats_reset@@EXPERIMENTAL T
+rte_event_dma_adapter_stop@@EXPERIMENTAL T
+rte_event_dma_adapter_vchan_add@@EXPERIMENTAL T
+rte_event_dma_adapter_vchan_del@@EXPERIMENTAL T
+rte_event_eth_rx_adapter_caps_get@@DPDK_25 T
+rte_event_eth_rx_adapter_cb_register@@DPDK_25 T
+rte_event_eth_rx_adapter_create@@DPDK_25 T
+rte_event_eth_rx_adapter_create_ext@@DPDK_25 T
+rte_event_eth_rx_adapter_create_ext_with_params@@EXPERIMENTAL T
+rte_event_eth_rx_adapter_create_with_params@@DPDK_25 T
+rte_event_eth_rx_adapter_event_port_get@@DPDK_25 T
+rte_event_eth_rx_adapter_free@@DPDK_25 T
+rte_event_eth_rx_adapter_instance_get@@DPDK_25 T
+rte_event_eth_rx_adapter_queue_add@@DPDK_25 T
+rte_event_eth_rx_adapter_queue_conf_get@@DPDK_25 T
+rte_event_eth_rx_adapter_queue_del@@DPDK_25 T
+rte_event_eth_rx_adapter_queue_stats_get@@DPDK_25 T
+rte_event_eth_rx_adapter_queue_stats_reset@@DPDK_25 T
+rte_event_eth_rx_adapter_runtime_params_get@@EXPERIMENTAL T
+rte_event_eth_rx_adapter_runtime_params_init@@EXPERIMENTAL T
+rte_event_eth_rx_adapter_runtime_params_set@@EXPERIMENTAL T
+rte_event_eth_rx_adapter_service_id_get@@DPDK_25 T
+rte_event_eth_rx_adapter_start@@DPDK_25 T
+rte_event_eth_rx_adapter_stats_get@@DPDK_25 T
+rte_event_eth_rx_adapter_stats_reset@@DPDK_25 T
+rte_event_eth_rx_adapter_stop@@DPDK_25 T
+rte_event_eth_rx_adapter_vector_limits_get@@DPDK_25 T
+rte_event_eth_tx_adapter_caps_get@@DPDK_25 T
+rte_event_eth_tx_adapter_create@@DPDK_25 T
+rte_event_eth_tx_adapter_create_ext@@DPDK_25 T
+rte_event_eth_tx_adapter_event_port_get@@DPDK_25 T
+rte_event_eth_tx_adapter_free@@DPDK_25 T
+rte_event_eth_tx_adapter_instance_get@@DPDK_25 T
+rte_event_eth_tx_adapter_queue_add@@DPDK_25 T
+rte_event_eth_tx_adapter_queue_del@@DPDK_25 T
+rte_event_eth_tx_adapter_queue_start@@DPDK_25 T
+rte_event_eth_tx_adapter_queue_stop@@DPDK_25 T
+rte_event_eth_tx_adapter_runtime_params_get@@EXPERIMENTAL T
+rte_event_eth_tx_adapter_runtime_params_init@@EXPERIMENTAL T
+rte_event_eth_tx_adapter_runtime_params_set@@EXPERIMENTAL T
+rte_event_eth_tx_adapter_service_id_get@@DPDK_25 T
+rte_event_eth_tx_adapter_start@@DPDK_25 T
+rte_event_eth_tx_adapter_stats_get@@DPDK_25 T
+rte_event_eth_tx_adapter_stats_reset@@DPDK_25 T
+rte_event_eth_tx_adapter_stop@@DPDK_25 T
+rte_event_fp_ops@@DPDK_25 B 800
+rte_event_logtype@@INTERNAL B 4
+rte_event_pmd_allocate@@INTERNAL T
+rte_event_pmd_release@@INTERNAL T
+rte_event_pmd_selftest_seqn_dynfield_offset@@INTERNAL D 4
+rte_event_port_attr_get@@DPDK_25 T
+rte_event_port_default_conf_get@@DPDK_25 T
+rte_event_port_link@@DPDK_25 T
+rte_event_port_links_get@@DPDK_25 T
+rte_event_port_profile_links_get@@EXPERIMENTAL T
+rte_event_port_profile_links_set@@EXPERIMENTAL T
+rte_event_port_profile_unlink@@EXPERIMENTAL T
+rte_event_port_quiesce@@DPDK_25 T
+rte_event_port_setup@@DPDK_25 T
+rte_event_port_unlink@@DPDK_25 T
+rte_event_port_unlinks_in_progress@@DPDK_25 T
+rte_event_queue_attr_get@@DPDK_25 T
+rte_event_queue_attr_set@@DPDK_25 T
+rte_event_queue_default_conf_get@@DPDK_25 T
+rte_event_queue_setup@@DPDK_25 T
+rte_event_ring_create@@DPDK_25 T
+rte_event_ring_free@@DPDK_25 T
+rte_event_ring_init@@DPDK_25 T
+rte_event_ring_lookup@@DPDK_25 T
+rte_event_timer_adapter_caps_get@@DPDK_25 T
+rte_event_timer_adapter_create@@DPDK_25 T
+rte_event_timer_adapter_create_ext@@DPDK_25 T
+rte_event_timer_adapter_free@@DPDK_25 T
+rte_event_timer_adapter_get_info@@DPDK_25 T
+rte_event_timer_adapter_lookup@@DPDK_25 T
+rte_event_timer_adapter_service_id_get@@DPDK_25 T
+rte_event_timer_adapter_start@@DPDK_25 T
+rte_event_timer_adapter_stats_get@@DPDK_25 T
+rte_event_timer_adapter_stats_reset@@DPDK_25 T
+rte_event_timer_adapter_stop@@DPDK_25 T
+rte_event_timer_remaining_ticks_get@@EXPERIMENTAL T
+rte_event_vector_pool_create@@DPDK_25 T

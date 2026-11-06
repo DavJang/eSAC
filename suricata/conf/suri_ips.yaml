@@ -1,0 +1,103 @@
+%YAML 1.1
+---
+vars:
+  address-groups:
+    HOME_NET: "any"
+    EXTERNAL_NET: "any"
+    DNS_SERVERS: "[192.168.0.0/16]"
+    SMTP_SERVERS: "[10.0.0.0/8]"
+    HTTP_SERVERS: "any"
+    SQL_SERVERS: "any"
+    TELNET_SERVERS: "any"
+    AIM_SERVERS: "any"
+    DNP3_SERVER: "any"
+    DNP3_CLIENT: "any"
+    MODBUS_CLIENT: "any"
+    MODBUS_SERVER: "any"
+    ENIP_CLIENT: "any"
+    ENIP_SERVER: "any"
+  port-groups:
+    DNS_PORTS: "[9,53]"
+default-log-dir: /home/sungwoo/suri_build/logs
+stats:
+  enabled: yes
+  interval: 5
+outputs:
+  - fast:
+      enabled: yes
+      filename: fast.log
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: eve.json
+      types:
+        - alert
+        - dns
+  - stats:
+      enabled: yes
+      filename: stats.log
+      totals: yes
+      threads: yes
+logging:
+  default-log-level: info
+  outputs:
+    - console:
+        enabled: yes
+app-layer:
+  protocols:
+    dns:
+      tcp:
+        enabled: yes
+        detection-ports:
+          dp: 53
+      udp:
+        enabled: yes
+        detection-ports:
+          dp: "[9,53]"
+default-rule-path: /home/sungwoo/suri_build/rules
+rule-files:
+  - dns.rules
+classification-file: /home/sungwoo/suri_build/inst/share/suricata/classification.config
+reference-config-file: /home/sungwoo/suri_build/inst/share/suricata/reference.config
+host-mode: router
+mpm-algo: hs
+spm-algo: hs
+threading:
+  set-cpu-affinity: yes
+  cpu-affinity:
+    - management-cpu-set:
+        cpu: [ 0 ]
+    - worker-cpu-set:
+        cpu: [ 11, 12 ]
+dpdk:
+  eal-params:
+    proc-type: primary
+    file-prefix: suri
+    socket-mem: "1024,0"
+  interfaces:
+    - interface: 0000:3b:01.4
+      threads: 1
+      promisc: true
+      multicast: true
+      checksum-checks: false
+      checksum-checks-offload: false
+      mtu: 1500
+      mempool-size: 65535
+      mempool-cache-size: 257
+      rx-descriptors: 1024
+      tx-descriptors: 1024
+      copy-mode: ips
+      copy-iface: 0000:3b:01.5
+    - interface: 0000:3b:01.5
+      threads: 1
+      promisc: true
+      multicast: true
+      checksum-checks: false
+      checksum-checks-offload: false
+      mtu: 1500
+      mempool-size: 65535
+      mempool-cache-size: 257
+      rx-descriptors: 1024
+      tx-descriptors: 1024
+      copy-mode: ips
+      copy-iface: 0000:3b:01.4
