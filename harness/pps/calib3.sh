@@ -1,7 +1,7 @@
 #!/bin/bash
 PF_INTRA=0000:3b:00.1; IF_INTRA=enp59s0f1np1
-DNS=/home/sungwoo/eSACfinal/traffic/dperf_dns
-LIB=/home/sungwoo/eSACfinal/lib/fstack-dpdk
+DNS=/home/sungwoo/FINAL/traffic/dperf_dns
+LIB=/home/sungwoo/FINAL/lib/fstack-dpdk
 ROOT=/home/sungwoo/calib3_$(date +%H%M%S); mkdir -p "$ROOT"; RES="$ROOT/RES.txt"; : > "$RES"
 KILL1(){ sudo pkill -9 -x dperf 2>/dev/null; sleep 1; }
 intra_up(){ KILL1

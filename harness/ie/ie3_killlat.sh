@@ -1,6 +1,6 @@
 #!/bin/bash
 set +u
-cd /home/sungwoo/eSACfinal/tamper_sentinel
+cd /home/sungwoo/FINAL/tamper_sentinel
 OUT=/home/sungwoo/killlat_$(date +%s); mkdir -p "$OUT"; echo "$OUT" > /home/sungwoo/.killlat_dir
 RES=$OUT/lat.txt; : > "$RES"
 ITERS=${ITERS:-15}
@@ -8,7 +8,7 @@ for vec in mprotect procmem; do
   : > "$OUT/$vec.vals"
   for it in $(seq 1 $ITERS); do
     sudo -n pkill -9 -x bpftrace 2>/dev/null; sleep 0.4
-    ./wd_selftest "$vec" 6 > "$OUT/${vec}_${it}.sel.log" 2>&1 & sp=$!
+    ./tamper_sentinel_selftest "$vec" 6 > "$OUT/${vec}_${it}.sel.log" 2>&1 & sp=$!
     sleep 1
     sudo -n bpftrace --unsafe -e "
 tracepoint:syscalls:sys_enter_mprotect /pid==$sp && (args->prot & 2)/ { @m[pid]=nsecs; signal(9); }

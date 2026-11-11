@@ -6,7 +6,7 @@ for v in 0 1 2 3; do sudo -n ip link set $IF vf $v spoofchk off 2>/dev/null; sud
 RES=/home/sungwoo/suri_intra_results.txt; : > "$RES"
 for PB in 64 128 256 512 1400; do
   echo "[$(date +%H:%M:%S)] PB=$PB start" | tee -a "$RES"
-  line=$(PB=$PB sudo -n -E bash /home/sungwoo/eSACfinal/harness/l7/sfc_suri_f0.sh pass 2>&1 | grep -aE "CASE=pass server_pps")
+  line=$(PB=$PB sudo -n -E bash /home/sungwoo/FINAL/harness/l7/sfc_suri_f0.sh pass 2>&1 | grep -aE "CASE=pass server_pps")
   echo "SURI_INTRA PB=$PB $line" | tee -a "$RES"
 done
 echo "SWEEP_DONE" | tee -a "$RES"

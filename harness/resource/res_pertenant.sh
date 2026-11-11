@@ -1,6 +1,6 @@
 #!/bin/bash
 set +e
-root=/home/sungwoo/eSACfinal
+root=/home/sungwoo/FINAL
 lib=/usr/local/lib/x86_64-linux-gnu/librte_eal.so
 loader=$root/loader/resource_loader
 bpf=$root/ebpf/resource_monitor.bpf.o

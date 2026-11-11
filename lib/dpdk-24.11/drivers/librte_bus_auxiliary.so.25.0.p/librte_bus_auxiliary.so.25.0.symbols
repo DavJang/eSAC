@@ -1,4 +1,0 @@
- 0x000000000000000e (SONAME)             Library soname: [librte_bus_auxiliary.so.25]
-INTERNAL A
-rte_auxiliary_register@@INTERNAL T
-rte_auxiliary_unregister@@INTERNAL T

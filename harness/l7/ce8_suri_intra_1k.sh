@@ -12,7 +12,7 @@ for v in 0 1 2 3; do sudo -n ip link set $IF vf $v spoofchk off 2>/dev/null; sud
 echo "f0 numvfs=$(cat /sys/bus/pci/devices/$PF/sriov_numvfs)" | tee -a "$RES"
 # ---- DROP sanity (IPS inline must block malicious .su) @KA=20 ----
 sudo -n pkill -9 suricata 2>/dev/null; sudo -n pkill -9 -x dperf 2>/dev/null; sleep 6
-dout=$(CC=1000 KA=20 PB=512 sudo -n -E bash /home/sungwoo/eSACfinal/harness/l7/sfc_suri_f0.sh drop 2>&1)
+dout=$(CC=1000 KA=20 PB=512 sudo -n -E bash /home/sungwoo/FINAL/harness/l7/sfc_suri_f0.sh drop 2>&1)
 ds=$(echo "$dout" | grep -aoE "server_pps_median=[0-9]+" | grep -oE "[0-9]+")
 dfl=$(echo "$dout" | grep -aoE "^[0-9]+ .*fast.log" | grep -oE "^[0-9]+")
 dev=$(echo "$dout" | grep -aA1 "eve alerts" | tail -1)
@@ -23,7 +23,7 @@ for KA in 20 100 500 1000; do
   v=0
   for att in 1 2 3; do
     sudo -n pkill -9 suricata 2>/dev/null; sudo -n pkill -9 -x dperf 2>/dev/null; sleep 6
-    line=$(CC=1000 KA=$KA PB=512 sudo -n -E bash /home/sungwoo/eSACfinal/harness/l7/sfc_suri_f0.sh pass 2>&1 | grep -aoE "server_pps_median=[0-9]+")
+    line=$(CC=1000 KA=$KA PB=512 sudo -n -E bash /home/sungwoo/FINAL/harness/l7/sfc_suri_f0.sh pass 2>&1 | grep -aoE "server_pps_median=[0-9]+")
     v=$(echo "$line" | grep -oE "[0-9]+")
     echo "  att=$att -> ${v:-0}" | tee -a "$RES"
     [ "${v:-0}" -gt 1000 ] && break

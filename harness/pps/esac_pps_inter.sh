@@ -8,30 +8,30 @@
 set -u
 TESTMODE=${TESTMODE:-0}; VALIDATE=${VALIDATE:-0}
 PF_INTER=0000:3b:00.0
-PREP=/home/sungwoo/eSACfinal/harness/setup/host1_vf_prepare.sh
-H2KEY=/home/sungwoo/eSACfinal/secrets/host2_key
+PREP=/home/sungwoo/FINAL/harness/setup/host1_vf_prepare.sh
+H2KEY=/home/sungwoo/FINAL/secrets/host2_key
 H2=(ssh -i "$H2KEY" -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=10 -p 9022 sungwoo@143.248.57.12)
 H2MAC=3c:fd:fe:c4:93:38       # host2 d9:00.0 PF
 H1VFMAC=02:40:00:00:00:11     # host1 inter VF
 H2DEV=0000:d9:00.0; H2IF=enp217s0f0np0
 SIP=192.168.1.1; CIP=192.168.0.1   # host1 VF = .1.1 ; host2 = .0.1
-DNS=/home/sungwoo/eSACfinal/traffic/dperf_dns
-LIB=/home/sungwoo/eSACfinal/lib/fstack-dpdk
-AGENT=/home/sungwoo/eSACfinal/agent/libbpftime-agent-hs.so
-BSRV=/home/sungwoo/eSACfinal/agent/libbpftime-syscall-server.so
-UFUNC=/home/sungwoo/eSACfinal/l7/ctl/esac_suricata_dns_ufunc.so
-L4OBJ=/home/sungwoo/eSACfinal/comm_plane/bpf/comm_filter_maskprobe_16k.bpf.o
-L7OBJ=/home/sungwoo/eSACfinal/comm_plane/bpf/comm_filter_maskprobe_16k_hs_gate.bpf.o
-L_RX=/home/sungwoo/eSACfinal/comm_plane/loaders/comm_loader_rxonly
-L_TX=/home/sungwoo/eSACfinal/comm_plane/loaders/comm_loader_mlx5tx
-OFFS=/home/sungwoo/eSACfinal/comm_plane/offsets.json
-IDT=/home/sungwoo/eSACfinal/tamper_sentinel/esac_pidcg_verify.py
-GENPOL=/home/sungwoo/eSACfinal/policy/gen_policy_n.py
-PAYDIR=/home/sungwoo/eSACfinal/l7/payloads
-HSCTL=/home/sungwoo/eSACfinal/l7/ctl/esac_hs_ctl_rx_urlhaus
-DOMCTL=/home/sungwoo/eSACfinal/l7/ctl/esac_dom_ctl_bulk
-PATS=/home/sungwoo/eSACfinal/l7/patterns/suricata_dns_patterns.txt
-H2DNS=/home/sungwoo/eSACfinal/traffic/dperf   # host2 dperf
+DNS=/home/sungwoo/FINAL/traffic/dperf_dns
+LIB=/home/sungwoo/FINAL/lib/fstack-dpdk
+AGENT=/home/sungwoo/FINAL/agent/libbpftime-agent-hs.so
+BSRV=/home/sungwoo/FINAL/agent/libbpftime-syscall-server.so
+UFUNC=/home/sungwoo/FINAL/l7/ctl/esac_suricata_dns_ufunc.so
+L4OBJ=/home/sungwoo/FINAL/comm_plane/bpf/comm_filter_maskprobe_16k.bpf.o
+L7OBJ=/home/sungwoo/FINAL/comm_plane/bpf/comm_filter_maskprobe_16k_hs_gate.bpf.o
+L_RX=/home/sungwoo/FINAL/comm_plane/loaders/comm_loader_rxonly
+L_TX=/home/sungwoo/FINAL/comm_plane/loaders/comm_loader_mlx5tx
+OFFS=/home/sungwoo/FINAL/comm_plane/offsets.json
+IDT=/home/sungwoo/FINAL/tamper_sentinel/esac_pidcg_verify.py
+GENPOL=/home/sungwoo/FINAL/policy/gen_policy_n.py
+PAYDIR=/home/sungwoo/FINAL/l7/payloads
+HSCTL=/home/sungwoo/FINAL/l7/ctl/esac_hs_ctl_rx_urlhaus
+DOMCTL=/home/sungwoo/FINAL/l7/ctl/esac_dom_ctl_bulk
+PATS=/home/sungwoo/FINAL/l7/patterns/suricata_dns_patterns.txt
+H2DNS=/home/sungwoo/FINAL/traffic/dperf   # host2 dperf
 SRV_CORES="2 3 4 5"
 DUR_C=${DUR_C:-18}
 SAT_CC_PER=${SAT_CC_PER:-8000}
@@ -73,7 +73,7 @@ inter_vf_up(){ KILL1; h2_kill
   env VF_TTL=14400 bash "$PREP" > "$ROOT/vf_inter.log" 2>&1
   VF_I=$(sed -n 's/^VF_BDF=//p' "$ROOT/vf_inter.log"|head -1)
   log "inter VF=$VF_I ($(grep -c VF_BDF "$ROOT/vf_inter.log") ok)"; }
-inter_vf_down(){ KILL1; echo 0 > /sys/bus/pci/devices/$PF_INTER/sriov_numvfs 2>/dev/null; rm -f /tmp/gown40g_host1_vf_failsafe.marker 2>/dev/null; }
+inter_vf_down(){ KILL1; echo 0 > /sys/bus/pci/devices/$PF_INTER/sriov_numvfs 2>/dev/null; rm -f /tmp/esac40g_host1_vf_failsafe.marker 2>/dev/null; }
 
 # mkconf_h1 file mode selfip peerip ncore payspec cc
 mkconf_h1(){ local f=$1 mode=$2 sip=$3 pip=$4 nc=$5 pay=$6 cc=$7
@@ -112,14 +112,14 @@ cell(){ local DIR=$1 LAYER=$2 NC=$3 PB=$4 CC=$5 CASE=$6
     attach "$epid" "$obj" "$act" "$pp" "$d" "$SHM" "$eloader" "$ENF"
     [ "$RDY" != YES ] && { echo "KEY key=$key mode=esac verdict=FAIL_ATTACH" | tee -a "$RES"; kill -9 $epid 2>/dev/null; KILL1; return; }
     kill -CONT "$epid"; sleep 2
-    "${H2[@]}" "env DUR=$DUR_C CPU=16 PROTO=udp $h2pay KEEPALIVE=${KA:-1000}us CPS=4000 CC=$CC SERVER_MAC=$H1VFMAC SOCKET_MEM=0,2048 CLIENT_BIN=$H2DNS HIST_START=3 bash /home/sungwoo/eSACfinal/harness/setup/host2_auto_client_hist.sh" > "$d/h2c.out" 2>&1
+    "${H2[@]}" "env DUR=$DUR_C CPU=16 PROTO=udp $h2pay KEEPALIVE=${KA:-1000}us CPS=4000 CC=$CC SERVER_MAC=$H1VFMAC SOCKET_MEM=0,2048 CLIENT_BIN=$H2DNS HIST_START=3 bash /home/sungwoo/FINAL/harness/setup/host2_auto_client_hist.sh" > "$d/h2c.out" 2>&1
     sleep 1
     [ -n "$LDRPID" ] && kill -0 "$LDRPID" 2>/dev/null && { kill -USR1 "$LDRPID" 2>/dev/null; sleep 1; }
     KILL1
     deliv=$(maxrx "$d/server.log"); offered=$(mx "$d/h2c.out" pktTx)
   else
     # host2 server; host1 eSAC client floods (load=host1 CC)
-    "${H2[@]}" "pkill -9 -x dperf 2>/dev/null; sleep 1; setsid env DUR=$((DUR_C+30)) CPU=6 PROTO=udp PAYLOAD=$PB KEEPALIVE=${KA:-1000}us CLIENT_MAC=$H1VFMAC SERVER_BIN=$H2DNS OUT=/tmp/h2srv bash /home/sungwoo/eSACfinal/harness/setup/host2_server.sh > /tmp/h2srv.out 2>&1 < /dev/null & echo LAUNCHED" > "$d/h2s.out" 2>&1
+    "${H2[@]}" "pkill -9 -x dperf 2>/dev/null; sleep 1; setsid env DUR=$((DUR_C+30)) CPU=6 PROTO=udp PAYLOAD=$PB KEEPALIVE=${KA:-1000}us CLIENT_MAC=$H1VFMAC SERVER_BIN=$H2DNS OUT=/tmp/h2srv bash /home/sungwoo/FINAL/harness/setup/host2_server.sh > /tmp/h2srv.out 2>&1 < /dev/null & echo LAUNCHED" > "$d/h2s.out" 2>&1
     sleep 7
     mkconf_h1 "$d/client.conf" client $CIP $SIP $NC "$payspec" $CC
     bash -c 'kill -STOP "$$"; exec env LD_PRELOAD="$1" LD_LIBRARY_PATH="$2" "$3" -c "$4"' _ "$AGENT:$UFUNC" "$LIB" "$DNS" "$d/client.conf" > "$d/client.log" 2>&1 &
@@ -156,11 +156,11 @@ ncell(){ local DIR=$1 NC=$2 PB=$3 CC=$4
   if [ "$DIR" = rx ]; then
     mkconf_h1 "$d/server.conf" server $SIP $CIP $NC "payload_size $PB" 0
     env -u LD_PRELOAD LD_LIBRARY_PATH="$LIB" timeout $((DUR_C+20)) "$DNS" -c "$d/server.conf" > "$d/server.log" 2>&1 & sleep 2
-    "${H2[@]}" "env DUR=$DUR_C CPU=16 PROTO=udp PAYLOAD=$PB KEEPALIVE=${KA:-1000}us CPS=4000 CC=$CC SERVER_MAC=$H1VFMAC SOCKET_MEM=0,2048 CLIENT_BIN=$H2DNS HIST_START=3 bash /home/sungwoo/eSACfinal/harness/setup/host2_auto_client_hist.sh" > "$d/h2c.out" 2>&1
+    "${H2[@]}" "env DUR=$DUR_C CPU=16 PROTO=udp PAYLOAD=$PB KEEPALIVE=${KA:-1000}us CPS=4000 CC=$CC SERVER_MAC=$H1VFMAC SOCKET_MEM=0,2048 CLIENT_BIN=$H2DNS HIST_START=3 bash /home/sungwoo/FINAL/harness/setup/host2_auto_client_hist.sh" > "$d/h2c.out" 2>&1
     sleep 1; KILL1
     deliv=$(maxrx "$d/server.log"); offered=$(mx "$d/h2c.out" pktTx)
   else
-    "${H2[@]}" "pkill -9 -x dperf 2>/dev/null; sleep 1; setsid env DUR=$((DUR_C+30)) CPU=6 PROTO=udp PAYLOAD=$PB KEEPALIVE=${KA:-1000}us CLIENT_MAC=$H1VFMAC SERVER_BIN=$H2DNS OUT=/tmp/h2srv bash /home/sungwoo/eSACfinal/harness/setup/host2_server.sh > /tmp/h2srv.out 2>&1 < /dev/null & echo LAUNCHED" > "$d/h2s.out" 2>&1
+    "${H2[@]}" "pkill -9 -x dperf 2>/dev/null; sleep 1; setsid env DUR=$((DUR_C+30)) CPU=6 PROTO=udp PAYLOAD=$PB KEEPALIVE=${KA:-1000}us CLIENT_MAC=$H1VFMAC SERVER_BIN=$H2DNS OUT=/tmp/h2srv bash /home/sungwoo/FINAL/harness/setup/host2_server.sh > /tmp/h2srv.out 2>&1 < /dev/null & echo LAUNCHED" > "$d/h2s.out" 2>&1
     sleep 7
     mkconf_h1 "$d/client.conf" client $CIP $SIP $NC "payload_size $PB" $CC
     env -u LD_PRELOAD LD_LIBRARY_PATH="$LIB" timeout $((DUR_C+4)) "$DNS" -c "$d/client.conf" > "$d/client.log" 2>&1 & sleep $((DUR_C+2))

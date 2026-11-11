@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only host PID+cgroup identity gate for an isolated GOWN pilot."""
+"""Read-only host PID+cgroup identity gate for an isolated eSAC pilot."""
 import json
 import os
 import select

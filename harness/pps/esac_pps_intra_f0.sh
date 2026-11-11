@@ -9,22 +9,22 @@
 set -u
 TESTMODE=${TESTMODE:-0}
 PF_INTRA=0000:3b:00.0; IF_INTRA=enp59s0f0np0
-DNS=/home/sungwoo/eSACfinal/traffic/dperf_dns
-LIB=/home/sungwoo/eSACfinal/lib/fstack-dpdk
-AGENT=/home/sungwoo/eSACfinal/agent/libbpftime-agent-hs.so
-BSRV=/home/sungwoo/eSACfinal/agent/libbpftime-syscall-server.so
-UFUNC=/home/sungwoo/eSACfinal/l7/ctl/esac_suricata_dns_ufunc.so
-L4OBJ=/home/sungwoo/eSACfinal/comm_plane/bpf/comm_filter_maskprobe_16k.bpf.o
-L7OBJ=/home/sungwoo/eSACfinal/comm_plane/bpf/comm_filter_maskprobe_16k_hs_gate.bpf.o
-L_RX=/home/sungwoo/eSACfinal/comm_plane/loaders/comm_loader_rxonly
-L_TX=/home/sungwoo/eSACfinal/comm_plane/loaders/comm_loader_mlx5tx
-OFFS=/home/sungwoo/eSACfinal/comm_plane/offsets.json
-IDT=/home/sungwoo/eSACfinal/tamper_sentinel/esac_pidcg_verify.py
-GENPOL=/home/sungwoo/eSACfinal/policy/gen_policy_n.py
-PAYDIR=/home/sungwoo/eSACfinal/l7/payloads
-HSCTL=/home/sungwoo/eSACfinal/l7/ctl/esac_hs_ctl_rx_urlhaus
-DOMCTL=/home/sungwoo/eSACfinal/l7/ctl/esac_dom_ctl_bulk
-PATS=${PATS:-/home/sungwoo/eSACfinal/l7/patterns/suricata_dns_patterns.txt}
+DNS=/home/sungwoo/FINAL/traffic/dperf_dns
+LIB=/home/sungwoo/FINAL/lib/fstack-dpdk
+AGENT=/home/sungwoo/FINAL/agent/libbpftime-agent-hs.so
+BSRV=/home/sungwoo/FINAL/agent/libbpftime-syscall-server.so
+UFUNC=/home/sungwoo/FINAL/l7/ctl/esac_suricata_dns_ufunc.so
+L4OBJ=/home/sungwoo/FINAL/comm_plane/bpf/comm_filter_maskprobe_16k.bpf.o
+L7OBJ=/home/sungwoo/FINAL/comm_plane/bpf/comm_filter_maskprobe_16k_hs_gate.bpf.o
+L_RX=/home/sungwoo/FINAL/comm_plane/loaders/comm_loader_rxonly
+L_TX=/home/sungwoo/FINAL/comm_plane/loaders/comm_loader_mlx5tx
+OFFS=/home/sungwoo/FINAL/comm_plane/offsets.json
+IDT=/home/sungwoo/FINAL/tamper_sentinel/esac_pidcg_verify.py
+GENPOL=/home/sungwoo/FINAL/policy/gen_policy_n.py
+PAYDIR=/home/sungwoo/FINAL/l7/payloads
+HSCTL=/home/sungwoo/FINAL/l7/ctl/esac_hs_ctl_rx_urlhaus
+DOMCTL=/home/sungwoo/FINAL/l7/ctl/esac_dom_ctl_bulk
+PATS=${PATS:-/home/sungwoo/FINAL/l7/patterns/suricata_dns_patterns.txt}
 SIP=192.168.91.1; CIP=192.168.91.2; SMAC=02:50:00:00:01:01; CMAC=02:50:00:00:01:02
 SRV_CORES="2 3 4 5"; CLI_CORES="6 7 8 9"
 DUR_C=${DUR_C:-18}          # client flood seconds

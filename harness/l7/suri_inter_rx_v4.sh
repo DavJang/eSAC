@@ -2,14 +2,14 @@
 # v4: Suricata single-iface IDS (copy-mode none + copy-iface none) + default template. reuse none=8264880.
 set +u
 PF=0000:3b:00.0
-PREP=/home/sungwoo/eSACfinal/harness/setup/host1_vf_prepare.sh
-SURI=/home/sungwoo/eSACfinal/suricata/bin/suricata
-SYAML=/home/sungwoo/eSACfinal/suricata/conf/suri_ips.yaml
+PREP=/home/sungwoo/FINAL/harness/setup/host1_vf_prepare.sh
+SURI=/home/sungwoo/FINAL/suricata/bin/suricata
+SYAML=/home/sungwoo/FINAL/suricata/conf/suri_ips.yaml
 SURILIB=/usr/local/lib/x86_64-linux-gnu
 H1VFMAC=02:40:00:00:00:11
-H2KEY=/home/sungwoo/eSACfinal/secrets/host2_key
+H2KEY=/home/sungwoo/FINAL/secrets/host2_key
 H2=(ssh -i "$H2KEY" -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=10 -p 9022 sungwoo@143.248.57.12)
-QCOM=${QCOM:-/home/sungwoo/eSACfinal/l7/payloads/dnsq_com.bin}
+QCOM=${QCOM:-/home/sungwoo/FINAL/l7/payloads/dnsq_com.bin}
 NONE=8264880
 R=/home/sungwoo/suri_inter_v4_$(date +%H%M%S); mkdir -p "$R"
 log(){ echo "[$(date +%T)] $*" | tee -a "$R/log"; }
@@ -23,7 +23,7 @@ ip link set "$IF" up 2>/dev/null
 log "VF=$VF IF=$IF"
 [ -z "$VF" ] && { log NOVF; exit 1; }
 
-h2flood(){ "${H2[@]}" "env DUR=$1 CPU=18 PROTO=udp PAYLOAD_FILE=$QCOM KEEPALIVE=${KA:-20}us CPS=4000 CC=${CC:-10000} SERVER_MAC=$H1VFMAC SOCKET_MEM=0,2048 CLIENT_BIN=/home/sungwoo/eSACfinal/traffic/dperf HIST_START=3 bash /home/sungwoo/eSACfinal/harness/setup/host2_auto_client_hist.sh"; }
+h2flood(){ "${H2[@]}" "env DUR=$1 CPU=18 PROTO=udp PAYLOAD_FILE=$QCOM KEEPALIVE=${KA:-20}us CPS=4000 CC=${CC:-10000} SERVER_MAC=$H1VFMAC SOCKET_MEM=0,2048 CLIENT_BIN=/home/sungwoo/FINAL/traffic/dperf HIST_START=3 bash /home/sungwoo/FINAL/harness/setup/host2_auto_client_hist.sh"; }
 
 Y="$R/suri_rx.yaml"
 head -77 "$SYAML" > "$Y"   # through "  interfaces:"

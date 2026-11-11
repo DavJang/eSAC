@@ -36,3 +36,23 @@ runtime.log
 # apps/nginx/nginx
 # tamper_sentinel/bin/tamper_sentinel*
 # lib/
+
+# ===== source-only GitHub snapshot: exclude prebuilt binaries & heavy third-party =====
+agent/*.so
+tamper_sentinel/bin/
+traffic/dperf*
+traffic/control_churn*
+traffic/flow_churn
+traffic/flow_throttle_loader
+traffic/cp_governor_loader
+apps/redis/redis-server
+apps/nginx/nginx
+suricata/bin/
+suricata/lib/
+lib/
+l7/**/*.so
+*.bak
+*.bak-*
+*.bak-rate
+secrets/
+results/

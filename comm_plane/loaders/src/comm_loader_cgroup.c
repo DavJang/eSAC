@@ -110,9 +110,9 @@ static volatile sig_atomic_t dump_now = 0;
 static void on_sigint(int s)  { (void)s; exiting = 1; }
 static void on_sigusr1(int s) { (void)s; dump_now = 1; }
 
-static volatile int g_prologue_watchdog_run = 1;
+static volatile int g_prologue_tamper_sentinel_run = 1;
 
-/* ── Prologue Integrity Watchdog (RDNet-style process_vm_readv) ──────────
+/* ── Prologue Integrity TamperSentinel (RDNet-style process_vm_readv) ──────────
  * bpftime mode에서 악의적 테넌트가 PMD 함수 프롤로그를 복원해 후크를
  * 제거하는 공격을 탐지한다.
  * comm_loader 가 --pid <pid> 를 받으면:
@@ -148,7 +148,7 @@ static uint64_t get_aslr_base(pid_t pid, const char *lib_path)
     snprintf(maps_path, sizeof(maps_path), "/proc/%d/maps", (int)pid);
     FILE *f = fopen(maps_path, "r");
     if (!f) {
-        fprintf(stderr, "[watchdog] cannot open %s: %s\n",
+        fprintf(stderr, "[tamper_sentinel] cannot open %s: %s\n",
                 maps_path, strerror(errno));
         return 0;
     }
@@ -177,11 +177,11 @@ static uint64_t get_aslr_base(pid_t pid, const char *lib_path)
 
     if (!base) {
         fprintf(stderr,
-            "[watchdog] ASLR base not found for '%s' in pid=%d\n",
+            "[tamper_sentinel] ASLR base not found for '%s' in pid=%d\n",
             lib_path, (int)pid);
     } else {
         fprintf(stderr,
-            "[watchdog] ASLR base pid=%d: 0x%lx (%s)\n",
+            "[tamper_sentinel] ASLR base pid=%d: 0x%lx (%s)\n",
             (int)pid, base,
             by_fullpath ? "full-path" : "basename");
     }
@@ -214,11 +214,11 @@ static void pw_register(const char *lib_path, unsigned long file_off,
     e->vaddr = 0; /* resolve after the paused tenant execs its real image */
     e->valid = 0;
     snprintf(e->sym_name, sizeof(e->sym_name), "%s", sym_name);
-    fprintf(stderr, "[watchdog] registered: %s pending tenant exec (off=0x%lx)\n",
+    fprintf(stderr, "[tamper_sentinel] registered: %s pending tenant exec (off=0x%lx)\n",
             sym_name, file_off);
 }
 
-static void *watchdog_prologue_thread(void *arg)
+static void *tamper_sentinel_prologue_thread(void *arg)
 {
     (void)arg;
 
@@ -234,7 +234,7 @@ static void *watchdog_prologue_thread(void *arg)
             uint64_t base = get_aslr_base(g_pw[i].pid, g_pw[i].lib_path);
             if (base) {
                 g_pw[i].vaddr = base + g_pw[i].file_off;
-                fprintf(stderr, "[watchdog] resolved: %s vaddr=0x%lx\n",
+                fprintf(stderr, "[tamper_sentinel] resolved: %s vaddr=0x%lx\n",
                         g_pw[i].sym_name, (unsigned long)g_pw[i].vaddr);
                 found++;
             }
@@ -257,7 +257,7 @@ static void *watchdog_prologue_thread(void *arg)
         usleep(100000);
     }
     if (patched != g_pw_count) {
-        fprintf(stderr, "[watchdog] ERROR: agent prologue patch incomplete (%d/%d)\n",
+        fprintf(stderr, "[tamper_sentinel] ERROR: agent prologue patch incomplete (%d/%d)\n",
                 patched, g_pw_count);
         return NULL;
     }
@@ -270,14 +270,14 @@ static void *watchdog_prologue_thread(void *arg)
                           g_pw[i].expected, PROLOGUE_BYTES) == 0) {
             g_pw[i].valid = 1;
             fprintf(stderr,
-                "[watchdog] snapshot %s: %02x %02x %02x %02x %02x ...\n",
+                "[tamper_sentinel] snapshot %s: %02x %02x %02x %02x %02x ...\n",
                 g_pw[i].sym_name,
                 g_pw[i].expected[0], g_pw[i].expected[1],
                 g_pw[i].expected[2], g_pw[i].expected[3],
                 g_pw[i].expected[4]);
         } else {
             fprintf(stderr,
-                "[watchdog] WARN: snapshot failed for %s (pid=%d) vaddr=0x%lx errno=%d (%s)\n",
+                "[tamper_sentinel] WARN: snapshot failed for %s (pid=%d) vaddr=0x%lx errno=%d (%s)\n",
                 g_pw[i].sym_name, (int)g_pw[i].pid,
                 (unsigned long)g_pw[i].vaddr,
                 errno, strerror(errno));
@@ -285,15 +285,15 @@ static void *watchdog_prologue_thread(void *arg)
     }
 
     if (g_pw_count == 0) {
-        fprintf(stderr, "[watchdog] prologue thread: no entries — exiting\n");
+        fprintf(stderr, "[tamper_sentinel] prologue thread: no entries — exiting\n");
         return NULL;
     }
 
     fprintf(stderr,
-        "[watchdog] prologue integrity active: %d hook(s), poll=%d μs\n",
+        "[tamper_sentinel] prologue integrity active: %d hook(s), poll=%d μs\n",
         g_pw_count, PROLOGUE_POLL_US);
 
-    while (g_prologue_watchdog_run) {
+    while (g_prologue_tamper_sentinel_run) {
         usleep(PROLOGUE_POLL_US);
 
         for (int i = 0; i < g_pw_count; i++) {
@@ -306,7 +306,7 @@ static void *watchdog_prologue_thread(void *arg)
 
             if (memcmp(cur, g_pw[i].expected, PROLOGUE_BYTES) != 0) {
                 fprintf(stderr,
-                    "\n[GOWN watchdog] *** INTEGRITY VIOLATION ***\n"
+                    "\n[eSAC tamper_sentinel] *** INTEGRITY VIOLATION ***\n"
                     "  hook: %s  pid=%d  vaddr=0x%lx\n"
                     "  expected: %02x %02x %02x %02x %02x %02x %02x %02x\n"
                     "  found:    %02x %02x %02x %02x %02x %02x %02x %02x\n"
@@ -323,11 +323,11 @@ static void *watchdog_prologue_thread(void *arg)
                 {
                     struct timespec __ts;
                     clock_gettime(CLOCK_REALTIME, &__ts);
-                    fprintf(stderr, "[GOWN watchdog] SIGKILL_SENT_EPOCH=%ld.%09ld\n",
+                    fprintf(stderr, "[eSAC tamper_sentinel] SIGKILL_SENT_EPOCH=%ld.%09ld\n",
                             (long)__ts.tv_sec, __ts.tv_nsec);
                 }
                 kill(g_pw[i].pid, SIGKILL);
-                g_prologue_watchdog_run = 0;
+                g_prologue_tamper_sentinel_run = 0;
                 return NULL;
             }
         }
@@ -782,7 +782,7 @@ static int handle_event(void *ctx, void *data, size_t sz)
      * bpftime에는 커널 전용 헬퍼인 bpf_send_signal()이 없어서 BPF
      * 프로그램 안에서 직접 시그널을 보낼 수 없다 (comm_filter_bpftime.bpf.c
      * 참고). 대신 여기 유저스페이스 loader가 comm_events로 ACT_KILL
-     * 이벤트를 받으면 대상 PID만 정확히 SIGKILL한다 (watchdog의
+     * 이벤트를 받으면 대상 PID만 정확히 SIGKILL한다 (tamper_sentinel의
      * kill(g_pw[i].pid, SIGKILL) 패턴과 동일 — cgroup 전체가 아니라
      * 단일 프로세스만 타겟팅하므로 loader 자기 자신은 안전하다).
      */
@@ -996,7 +996,7 @@ int main(int argc, char **argv)
     if (G.pid > 0) {
         g_target_pid = (pid_t)G.pid;
         fprintf(stderr,
-            "[comm] prologue watchdog target: pid=%d (poll=%d μs)\n",
+            "[comm] prologue tamper_sentinel target: pid=%d (poll=%d μs)\n",
             G.pid, PROLOGUE_POLL_US);
     }
     if (!G.no_pin) mkdir(PIN_BASE, 0755);
@@ -1268,10 +1268,10 @@ int main(int argc, char **argv)
     /* PMD 프롤로그 무결성 (process_vm_readv, RDNet-style) */
     if (g_target_pid > 0) {
         pthread_t pw_tid;
-        if (pthread_create(&pw_tid, NULL, watchdog_prologue_thread, NULL) == 0)
+        if (pthread_create(&pw_tid, NULL, tamper_sentinel_prologue_thread, NULL) == 0)
             pthread_detach(pw_tid);
         else
-            fprintf(stderr, "[comm] WARN: failed to start prologue watchdog thread\n");
+            fprintf(stderr, "[comm] WARN: failed to start prologue tamper_sentinel thread\n");
     }
 
     /* ================================================================= */
@@ -1320,7 +1320,7 @@ int main(int argc, char **argv)
         }
     }
 
-    g_prologue_watchdog_run = 0;
+    g_prologue_tamper_sentinel_run = 0;
     if (qstats_fd >= 0) dump_queue_stats(qstats_fd);
     if (lat_tx_fd >= 0) dump_latency_named(lat_tx_fd, "tx_latency");
     if (lat_fd    >= 0) dump_latency(lat_fd);

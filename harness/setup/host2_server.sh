@@ -9,7 +9,7 @@ dur=${DUR:-45}
 cpu=${CPU:-6}; cpu=${cpu//,/ }
 bound=0; was_up=0; app_pid=
 CLIENT_MAC=${CLIENT_MAC:-02:40:00:00:00:11}
-BIN=${SERVER_BIN:-/home/sungwoo/eSACfinal/traffic/dperf}
+BIN=${SERVER_BIN:-/home/sungwoo/FINAL/traffic/dperf}
 mkdir -p "$out"
 if pgrep -x dperf >/dev/null; then echo 'DPDK active on host2' >&2; exit 1; fi
 if [[ $(basename "$(readlink -f "/sys/bus/pci/devices/$dev/driver")") != i40e ]]; then echo 'unexpected host2 driver' >&2; exit 1; fi

@@ -22,13 +22,13 @@ The codebase evolved under several names; this tree uses one consistent vocabula
 
 | Canonical (prose)            | identifier / filename form | older names it replaces            |
 |------------------------------|----------------------------|------------------------------------|
-| **eSAC**                     | `esac`                     | GOWN, gown                         |
-| **TamperSentinel**           | `tamper_sentinel`          | watchdog, policy_watchdog, wd      |
+| **eSAC**                     | `esac`                     | eSAC, esac                         |
+| **TamperSentinel**           | `tamper_sentinel`          | tamper_sentinel, policy_tamper_sentinel, wd      |
 | **mask-probe optimization**  | `mask_probe` / `maskprobe` | opt3, probe-mask                   |
 
 Upstream identifiers are left untouched on purpose (renaming them would break binaries):
 e.g. the bpftime env var `BPFTIME_GLOBAL_SHM_NAME` and the dperf histogram env vars
-`GOWN_HIST_FILE` / `GOWN_HIST_START_SEC` (read by the prebuilt `traffic/dperf_hist`).
+`ESAC_HIST_FILE` / `ESAC_HIST_START_SEC` (read by the prebuilt `traffic/dperf_hist`).
 
 ---
 
@@ -67,6 +67,27 @@ eSACfinal/
 
 ---
 
+## Components
+
+eSAC ships as **eight deployed components across four planes** (paper Table 2). Each maps to real files in this tree. Filter actions are **ALLOW/DROP**; the resource plane is **all-block** (admission gate + runtime override + churn throttle, SIGKILL only as a backstop); the tamper sentinel is **2-vector** (`mprotect`, `openat`).
+
+| Plane | Component | Role (execution woven in) | Files |
+|---|---|---|---|
+| **Policy/Map** | Policy configuration | Host-defined resource quotas + communication policy; feeds both loaders | `policy/` (gen_policy_n, gen_policy_kern, mkdns) |
+| | bpftime maps | Tenant-shared `comm_policy`/`RCFG` read-only (cgroup_id-keyed) + writable stats | maps defined in `comm_plane/bpf/comm_filter_maskprobe_16k.bpf.o` (runtime shm) |
+| | L7 mmap | Per-tenant, host-owned `O_RDONLY` Hyperscan/domain DB scanned by the ufunc provider | `l7/ctl/` (esac_hs_ctl_bulk, esac_dom_ctl_bulk), `l7/ctl/esac_hs_ufunc.so` |
+| **Resource Control** | Resource loader | Root host; resolves 11 EAL/resource APIs, attaches uprobes, loads the resource filter; screens requests at admission (pre-exec) | `comm_plane/loaders/resource_loader` (+`src/`), `harness/resource/esac_admit.sh` |
+| | Resource filter | Blocks over-quota call by override (`NULL`/`-EAGAIN`); token-bucket throttle on control-API + hugepage churn; terminate as backstop | `comm_plane/bpf/resource_monitor.bpf.o` (quota), `resource_quota.bpf.o` (runtime override), `resource_loader.bpf.o` + `comm_plane/loaders/resource_loader_rate` (churn throttle) |
+| **Communication Control** | Communication loader | Root-host syscall-server; loads object/policy/L7 DB; registers PID-scoped PMD RX/TX hooks (mlx5; ixgbe on 82599) | `comm_plane/loaders/comm_loader_cgroup_maskprobe` (mlx5), `comm_loader_cgroup` (ixgbe), `comm_loader_kernel128` (kernel-uprobe baseline) |
+| | bpftime agent | In-tenant runtime hosting the hooks and filter; bundles **Frida listener** (RX/TX burst intercept) + **LLVM-JIT filter** (ALLOW/DROP) + **ufunc provider** (native Hyperscan L7 on the DNS query name) | `agent/libbpftime-agent.so` (+ `libbpftime-syscall-server.so`); filter `comm_plane/bpf/comm_filter_maskprobe_16k.bpf.o` |
+| **Integrity** | Tamper sentinel | Root-host per-PID; watches `mprotect(PROT_WRITE)` and `openat(/proc/self/mem)`, SIGKILL on either; RO-map performed by the loader | `tamper_sentinel/tamper_sentinel_event.sh` (2-vector) + `tamper_sentinel/bin/` |
+
+**Not a component (orchestration):** the host launcher drives the fail-closed lifecycle — STOP/CONT start-gate, cgroup placement, NIC access grant (`CAP_NET_RAW`+RDMA verbs on mlx5, or a `/dev/vfio` ACL on 82599), and network-namespace confinement of the tenant — and invokes the eight components above (`harness/fstack/fstack_verify_stopcont.sh`, `harness/setup/intra_switchdev_up.sh`).
+
+**Driver hooking note:** the PMD burst routine is chosen by the driver at device start from a large templated family, so the loader registers every variant and only the selected one runs — the mlx5 build registers **4 RX** variants and **all 42 `mlx5_tx_burst_*`** variants.
+
+---
+
 ## Prerequisites (system state — NOT copyable, reproduce with setup scripts)
 
 These live in the kernel/devices, not in files, so they are rebuilt by scripts here:
@@ -89,7 +110,7 @@ and cannot be bundled. **intra-host** experiments and the **fstack** real-app en
 ## Validation (acceptance test)
 
 ```bash
-bash /home/sungwoo/eSACfinal/run_validation.sh
+bash /home/sungwoo/FINAL/run_validation.sh
 ```
 
 Runs two independent targets from this tree alone. Results from the 2026-11-06 run:

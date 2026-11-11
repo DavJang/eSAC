@@ -1,15 +1,15 @@
 #!/bin/bash
 set +u
 CASE=${1:-pass}
-SURI=/home/sungwoo/eSACfinal/suricata/bin/suricata
-YAML=/home/sungwoo/eSACfinal/suricata/conf/suri_ips_f0.yaml
-DSRV=/home/sungwoo/eSACfinal/traffic/dperf_probe
-DCLI=/home/sungwoo/eSACfinal/traffic/dperf_dns
-CLL=/home/sungwoo/eSACfinal/lib/dpdk-24.11/lib:/home/sungwoo/eSACfinal/lib/dpdk-24.11/drivers
+SURI=/home/sungwoo/FINAL/suricata/bin/suricata
+YAML=/home/sungwoo/FINAL/suricata/conf/suri_ips_f0.yaml
+DSRV=/home/sungwoo/FINAL/traffic/dperf_probe
+DCLI=/home/sungwoo/FINAL/traffic/dperf_dns
+CLL=/home/sungwoo/FINAL/lib/dpdk-24.11/lib:/home/sungwoo/FINAL/lib/dpdk-24.11/drivers
 SURILIB=/usr/local/lib/x86_64-linux-gnu
 V0=0000:3b:00.3; V3=0000:3b:00.6
 CMAC=02:60:00:00:00:01; SMAC=02:60:00:00:00:04
-PB=${PB:-64}; Q=/home/sungwoo/eSACfinal/l7/payloads/dnsq_com_$(printf %04d $PB).bin; [ "$CASE" = drop ] && Q=/home/sungwoo/eSACfinal/l7/payloads/dnsq_su_$(printf %04d $PB).bin
+PB=${PB:-64}; Q=/home/sungwoo/FINAL/l7/payloads/dnsq_com_$(printf %04d $PB).bin; [ "$CASE" = drop ] && Q=/home/sungwoo/FINAL/l7/payloads/dnsq_su_$(printf %04d $PB).bin
 R=/home/sungwoo/suri_run_${CASE}_$(date +%H%M%S); mkdir -p "$R"
 sudo -n pkill -9 -x dperf 2>/dev/null; sudo -n pkill -9 suricata 2>/dev/null; sleep 2
 for r in eth0 eth1 eth2 eth3; do sudo -n tc qdisc del dev $r ingress 2>/dev/null; sudo -n tc qdisc add dev $r ingress 2>/dev/null; done

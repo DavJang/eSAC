@@ -1,22 +1,22 @@
 #!/bin/bash
-# Q4 nginx on mlx5 40G SWITCHDEV (PF1), none vs eSAC(gown). Client = LOCAL ab on CVF (192.168.1.2)
-# -> f-stack nginx on SVF 3b:01.3 (192.168.1.1) via HW tc hairpin. gown attaches to nginx WORKER.
+# Q4 nginx on mlx5 40G SWITCHDEV (PF1), none vs eSAC(esac). Client = LOCAL ab on CVF (192.168.1.2)
+# -> f-stack nginx on SVF 3b:01.3 (192.168.1.1) via HW tc hairpin. esac attaches to nginx WORKER.
 set -u
-R=/home/sungwoo/eSACfinal
-AGENT=/home/sungwoo/eSACfinal/agent/libbpftime-agent.so
-SERVER=/home/sungwoo/eSACfinal/agent/libbpftime-syscall-server.so
-COMBO=/home/sungwoo/eSACfinal/comm_plane/bpf/comm_filter_maskprobe_16k.bpf.o
-NGINX=/home/sungwoo/eSACfinal/apps/nginx/sbin/nginx
-BASECONF=/home/sungwoo/eSACfinal/apps/nginx/conf/nginx.conf
-BASEFF=/home/sungwoo/eSACfinal/apps/nginx/conf/f-stack.conf
-CONF=/home/sungwoo/eSACfinal/apps/nginx/conf/nginx_sw.conf
-FFCONF=/home/sungwoo/eSACfinal/apps/nginx/conf/f-stack-sw.conf
-ELOG=/home/sungwoo/eSACfinal/apps/nginx/logs/error.log
-FFLIB=/home/sungwoo/eSACfinal/lib/fstack-dpdk:/usr/local/lib/x86_64-linux-gnu
+R=/home/sungwoo/FINAL
+AGENT=/home/sungwoo/FINAL/agent/libbpftime-agent.so
+SERVER=/home/sungwoo/FINAL/agent/libbpftime-syscall-server.so
+COMBO=/home/sungwoo/FINAL/comm_plane/bpf/comm_filter_maskprobe_16k.bpf.o
+NGINX=/home/sungwoo/FINAL/apps/nginx/sbin/nginx
+BASECONF=/home/sungwoo/FINAL/apps/nginx/conf/nginx.conf
+BASEFF=/home/sungwoo/FINAL/apps/nginx/conf/f-stack.conf
+CONF=/home/sungwoo/FINAL/apps/nginx/conf/nginx_sw.conf
+FFCONF=/home/sungwoo/FINAL/apps/nginx/conf/f-stack-sw.conf
+ELOG=/home/sungwoo/FINAL/apps/nginx/logs/error.log
+FFLIB=/home/sungwoo/FINAL/lib/fstack-dpdk:/usr/local/lib/x86_64-linux-gnu
 AB='/usr/bin/ab -n 30000 -c 50 http://192.168.1.1/'
 CURL='curl -s -m3 -o /dev/null -w %{http_code} http://192.168.1.1/'
 PF1=0000:3b:00.1; IF1=enp59s0f1np1; SVF=0000:3b:01.3; CVF_NET=enp59s0f1v1; CIP=192.168.1.2
-OUT=/home/sungwoo/eSACfinal/results/nginxperf40_$(date +%s); mkdir -p "$OUT"; echo "$OUT">/home/sungwoo/eSACfinal/results/.nginxperf40_dir
+OUT=/home/sungwoo/FINAL/results/nginxperf40_$(date +%s); mkdir -p "$OUT"; echo "$OUT">/home/sungwoo/FINAL/results/.nginxperf40_dir
 RES=$OUT/results.tsv; printf 'mode\trep\treq_per_s\tmean_ms\tp50_ms\tp99_ms\tfailed\n' > "$RES"
 LOG=$OUT/log; echo "start $(date) OUT=$OUT" > "$LOG"
 say(){ echo "[$(date +%H:%M:%S)] $*" | tee -a "$LOG"; }
@@ -46,17 +46,17 @@ clean(){ sudo -n pkill -9 -x nginx 2>/dev/null; sudo -n pkill -9 -f comm_loader 
 boot_none(){ : > "$ELOG"; sudo -n setsid env LD_LIBRARY_PATH="$FFLIB" "$NGINX" -c "$CONF" > "$OUT/nginx_none.log" 2>&1 </dev/null & disown
   echo $(pgrep -f 'nginx: master'|head -1); }
 
-boot_gown(){ : > "$ELOG"; export BPFTIME_GLOBAL_SHM_NAME=esac_ngx_$(date +%s%N)
-  sudo -n setsid env LD_PRELOAD="$AGENT" LD_LIBRARY_PATH="$FFLIB" "$NGINX" -c "$CONF" > "$OUT/nginx_gown.log" 2>&1 </dev/null & disown
+boot_esac(){ : > "$ELOG"; export BPFTIME_GLOBAL_SHM_NAME=esac_ngx_$(date +%s%N)
+  sudo -n setsid env LD_PRELOAD="$AGENT" LD_LIBRARY_PATH="$FFLIB" "$NGINX" -c "$CONF" > "$OUT/nginx_esac.log" 2>&1 </dev/null & disown
   local j W; for j in $(seq 1 30); do grep -q 'register dpdk interface' "$ELOG" 2>/dev/null && break; sleep 1; done
   for j in $(seq 1 15); do W=$(pgrep -f 'nginx: worker'|head -1); [ -n "$W" ] && break; sleep 1; done
-  say "gown worker=$W"
+  say "esac worker=$W"
   local CG=/sys/fs/cgroup/esac_ngxw_$W; sudo -n mkdir "$CG" 2>/dev/null; sudo -n chmod 755 "$CG"; printf '%s\n' "$W"|sudo -n tee "$CG/cgroup.procs" >/dev/null
   local CGID=$(stat -c %i "$CG")
   printf '{"rules":[{"layer":"L2","cgroup_id":%s,"dst_ip":"192.168.1.1","proto":6,"action":"ALLOW"},{"layer":"L2","cgroup_id":%s,"dst_ip":"192.168.1.2","proto":6,"action":"ALLOW"}]}\n' "$CGID" "$CGID" > "$OUT/policy.json"
-  sudo -n env BPFTIME_LOG_OUTPUT=console SPDLOG_LEVEL=Info LD_PRELOAD="$SERVER" /home/sungwoo/eSACfinal/comm_plane/loaders/comm_loader_cgroup_maskprobe --max-burst-inspect 128 --bpf "$COMBO" --lib "$NGINX" --pmd-lib "$NGINX" --offsets "/home/sungwoo/eSACfinal/comm_plane/offsets.json" --policy "$OUT/policy.json" --no-pin --enforcement --attach-pid "$W" -v > "$OUT/loader.log" 2>&1 &
+  sudo -n env BPFTIME_LOG_OUTPUT=console SPDLOG_LEVEL=Info LD_PRELOAD="$SERVER" /home/sungwoo/FINAL/comm_plane/loaders/comm_loader_cgroup_maskprobe --max-burst-inspect 128 --bpf "$COMBO" --lib "$NGINX" --pmd-lib "$NGINX" --offsets "/home/sungwoo/FINAL/comm_plane/offsets.json" --policy "$OUT/policy.json" --no-pin --enforcement --attach-pid "$W" -v > "$OUT/loader.log" 2>&1 &
   for j in $(seq 1 40); do grep -q 'attach summary: RX=OK TX=OK' "$OUT/loader.log" 2>/dev/null && break; sleep 1; done
-  grep -q 'attach summary: RX=OK TX=OK' "$OUT/loader.log" 2>/dev/null && say "gown attach OK" || say "eSAC_ATTACH_FAIL"
+  grep -q 'attach summary: RX=OK TX=OK' "$OUT/loader.log" 2>/dev/null && say "esac attach OK" || say "eSAC_ATTACH_FAIL"
   echo $(pgrep -f 'nginx: master'|head -1); }
 
 wait_ready(){ local j; for j in $(seq 1 30); do grep -q 'register dpdk interface' "$ELOG" 2>/dev/null && { sleep 2; [ "$($CURL 2>/dev/null)" = 200 ] && return 0; }; sleep 1; done; return 1; }
@@ -71,9 +71,9 @@ bench(){ local mode=$1 rep=$2 O=$OUT/ab_${mode}_${rep}.txt
   printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$mode" "$rep" "${rps:-NA}" "${mean:-NA}" "${p50:-NA}" "${p99:-NA}" "${failed:-NA}" >> "$RES"
   say "[$mode r$rep] rps=${rps:-NA} mean=${mean:-NA}ms p50=${p50:-NA} p99=${p99:-NA} failed=${failed:-NA}"; }
 
-for mode in none gown; do
+for mode in none esac; do
   clean
-  if [ "$mode" = none ]; then srv=$(boot_none); else srv=$(boot_gown); fi
+  if [ "$mode" = none ]; then srv=$(boot_none); else srv=$(boot_esac); fi
   if wait_ready; then for rep in 1 2 3; do bench "$mode" "$rep"; sleep 1; done
   else say "[$mode] NGINX_NOT_READY"; tail -8 "$ELOG" >> "$LOG" 2>/dev/null; fi
   sudo -n pkill -9 -x nginx 2>/dev/null; clean

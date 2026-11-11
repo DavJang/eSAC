@@ -5,14 +5,14 @@ MODE=${MODE:?}; OUT=${OUT:?}; DUR=${DUR:-20}; PAYLOAD=${PAYLOAD:-64}; KEEPALIVE=
 ACTION=${ACTION:-ALLOW}
 case "$ACTION" in ALLOW|DROP|KILL) ;; *) echo "Invalid ACTION=$ACTION" >&2; exit 2;; esac
 SCPU=${SCPU:-2}; POLCPU=${POLCPU:-4}; PROCPU=${PROCPU:-5}; SOCKET_MEM=${SOCKET_MEM:-1024}
-R=/home/sungwoo/eSACfinal; APP=${APP:-/home/sungwoo/eSACfinal/traffic/dperf_probe}; LIB=/home/sungwoo/eSACfinal/lib/fstack-dpdk
-AGENT=${eSAC_AGENT_PATH:-/home/sungwoo/eSACfinal/agent/libbpftime-agent-hs.so}
-HS_LIB=${eSAC_HS_LIB:-/home/sungwoo/eSACfinal/l7/ctl/esac_hs_ufunc.so}
+R=/home/sungwoo/FINAL; APP=${APP:-/home/sungwoo/FINAL/traffic/dperf_probe}; LIB=/home/sungwoo/FINAL/lib/fstack-dpdk
+AGENT=${eSAC_AGENT_PATH:-/home/sungwoo/FINAL/agent/libbpftime-agent-hs.so}
+HS_LIB=${eSAC_HS_LIB:-/home/sungwoo/FINAL/l7/ctl/esac_hs_ufunc.so}
 HS_PATTERNS=${eSAC_HS_PATTERNS:-}
-SERVER=/home/sungwoo/eSACfinal/agent/libbpftime-syscall-server.so
-COMBO=${COMBO:-/home/sungwoo/eSACfinal/comm_plane/bpf/comm_filter_bpftime_cgroup.bpf.o}
-KOBJ=/home/sungwoo/eSACfinal/comm_plane/bpf/comm_filter_kernel128.bpf.o
-GUARD=/home/sungwoo/eSACfinal/tamper_sentinel/bin; IDT=/home/sungwoo/eSACfinal/tamper_sentinel/esac_pidcg_verify.py
+SERVER=/home/sungwoo/FINAL/agent/libbpftime-syscall-server.so
+COMBO=${COMBO:-/home/sungwoo/FINAL/comm_plane/bpf/comm_filter_bpftime_cgroup.bpf.o}
+KOBJ=/home/sungwoo/FINAL/comm_plane/bpf/comm_filter_kernel128.bpf.o
+GUARD=/home/sungwoo/FINAL/tamper_sentinel/bin; IDT=/home/sungwoo/FINAL/tamper_sentinel/esac_pidcg_verify.py
 PORT=${PORT:-0000:3b:00.0}; SIP=192.168.1.1; SPEER=192.168.0.1; SMAC=3c:fd:fe:c4:93:38
 mkdir -p "$OUT"; rm -f "$OUT/.ready" "$OUT/.done"
 SHM=esac_inter_$(basename "$OUT")_$(date +%s%N); export BPFTIME_GLOBAL_SHM_NAME=$SHM
@@ -47,7 +47,7 @@ elif [[ $MODE == kernel ]]; then
   bash -c 'kill -STOP "$$"; exec env -u LD_PRELOAD LD_LIBRARY_PATH="$1" "$2" -c "$3"' _ "$LIB" "$APP" "$OUT/server.conf" > "$OUT/server.log" 2>&1 </dev/null & srv=$!
   sleep 1
   printf '{"rules":[{"layer":"L2","dst_ip":"192.168.1.1","proto":6,"dst_port":9,"action":"%s"},{"layer":"L2","dst_ip":"192.168.0.1","proto":6,"action":"ALLOW"}]}\n' "$ACTION" > "$OUT/policy.json"
-  sudo -n "/home/sungwoo/eSACfinal/comm_plane/loaders/comm_loader_kernel128" --bpf "$KOBJ" --lib "$APP" --pmd-lib "$APP" --offsets "/home/sungwoo/eSACfinal/comm_plane/offsets.json" --policy "$OUT/policy.json" --no-pin --enforcement --attach-pid "$srv" -v > "$OUT/loader.log" 2>&1 & loader=$!
+  sudo -n "/home/sungwoo/FINAL/comm_plane/loaders/comm_loader_kernel128" --bpf "$KOBJ" --lib "$APP" --pmd-lib "$APP" --offsets "/home/sungwoo/FINAL/comm_plane/offsets.json" --policy "$OUT/policy.json" --no-pin --enforcement --attach-pid "$srv" -v > "$OUT/loader.log" 2>&1 & loader=$!
   sleep 1; kr=$(pgrep -P "$loader"|head -1||true); rdy=NO
   for ((j=0;j<40;j++)); do grep -q 'attach summary: RX=OK TX=OK' "$OUT/loader.log"&&{ rdy=YES;break;}; kill -0 "$loader" 2>/dev/null||break; sleep 1; done
   [[ $rdy == YES ]]||{ echo FAIL_attach >>"$OUT/run.log"; exit 1;}; kill -CONT "$srv"
@@ -59,11 +59,11 @@ else
   CGID=$(stat -c %i "$CG")
   PNUM=6; [ "${PROTO:-tcp}" = udp ] && PNUM=17
   printf '{"rules":[{"layer":"L2","cgroup_id":%s,"dst_ip":"192.168.1.1","proto":%s,"dst_port":9,"action":"%s"},{"layer":"L2","cgroup_id":%s,"dst_ip":"192.168.0.1","proto":%s,"action":"ALLOW"}]}\n' "$CGID" "$PNUM" "$ACTION" "$CGID" "$PNUM" > "$OUT/policy.json"
-  env BPFTIME_LOG_OUTPUT=console SPDLOG_LEVEL=Info LD_PRELOAD="$SERVER" "${BURST_LOADER:-/home/sungwoo/eSACfinal/comm_plane/loaders/comm_loader_cgroup}" --max-burst-inspect "${MAX_BURST_INSPECT:-32}" --bpf "$COMBO" --lib "$APP" --pmd-lib "$APP" --offsets "/home/sungwoo/eSACfinal/comm_plane/offsets.json" --policy "$OUT/policy.json" --no-pin --enforcement --attach-pid "$srv" -v > "$OUT/loader.log" 2>&1 & loader=$!
+  env BPFTIME_LOG_OUTPUT=console SPDLOG_LEVEL=Info LD_PRELOAD="$SERVER" "${BURST_LOADER:-/home/sungwoo/FINAL/comm_plane/loaders/comm_loader_cgroup}" --max-burst-inspect "${MAX_BURST_INSPECT:-32}" --bpf "$COMBO" --lib "$APP" --pmd-lib "$APP" --offsets "/home/sungwoo/FINAL/comm_plane/offsets.json" --policy "$OUT/policy.json" --no-pin --enforcement --attach-pid "$srv" -v > "$OUT/loader.log" 2>&1 & loader=$!
   rdy=NO; for ((j=0;j<40;j++)); do grep -q "scoped uprobe target pid=$srv" "$OUT/loader.log"&&grep -q 'attach summary: RX=OK TX=OK' "$OUT/loader.log"&&grep -q 'L2 rules loaded=2' "$OUT/loader.log"&&{ rdy=YES;break;}; kill -0 "$loader" 2>/dev/null||break; sleep 1; done
   [[ $rdy == YES ]]||{ echo FAIL_attach >>"$OUT/run.log"; exit 1;}
   printf '{"default":{"max_lcore_count":64,"max_mbuf_count":1048576,"max_tx_queues":128,"max_socket_mem_mb":4096,"action_on_violation":"KILL"}}\n' > "$OUT/rp.json"
-  sudo -n "/home/sungwoo/eSACfinal/comm_plane/loaders/resource_loader" --bpf "/home/sungwoo/eSACfinal/comm_plane/bpf/resource_monitor.bpf.o" --lib /usr/local/lib/x86_64-linux-gnu/librte_eal.so --policy "$OUT/rp.json" -v > "$OUT/resl.log" 2>&1 & resl=$!
+  sudo -n "/home/sungwoo/FINAL/comm_plane/loaders/resource_loader" --bpf "/home/sungwoo/FINAL/comm_plane/bpf/resource_monitor.bpf.o" --lib /usr/local/lib/x86_64-linux-gnu/librte_eal.so --policy "$OUT/rp.json" -v > "$OUT/resl.log" 2>&1 & resl=$!
   for ((j=0;j<40;j++)); do grep -q '\[resource_loader\] ready' "$OUT/resl.log"&&break; sleep 0.25; done
   resr=$(pgrep -P "$resl"|head -1||true)
   sudo -n taskset -c "$POLCPU" env BPFTIME_GLOBAL_SHM_NAME="$SHM" "$GUARD/tamper_sentinel_cgroup" "$srv" > "$OUT/polw.log" 2>&1 & polw=$!

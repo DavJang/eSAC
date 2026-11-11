@@ -19,32 +19,32 @@ done_key(){ grep -q "^KEY=$1 " "$RES" 2>/dev/null; }
 # ---- asset paths ----
 PF_INTRA=0000:3b:00.1; IF_INTRA=enp59s0f1np1
 PF_INTER=0000:3b:00.0
-PREP=/home/sungwoo/eSACfinal/harness/setup/host1_vf_prepare.sh
-H2KEY=/home/sungwoo/eSACfinal/secrets/host2_key
+PREP=/home/sungwoo/FINAL/harness/setup/host1_vf_prepare.sh
+H2KEY=/home/sungwoo/FINAL/secrets/host2_key
 H2=(ssh -i "$H2KEY" -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=10 -p 9022 sungwoo@143.248.57.12)
 H2IP=sungwoo@143.248.57.12
-DNS=/home/sungwoo/eSACfinal/traffic/dperf_dns          # DNS flood client / udp server
-ECHO=/home/sungwoo/eSACfinal/traffic/dperf_probe        # plain echo server
-HIST=/home/sungwoo/eSACfinal/traffic/dperf_hist   # host1 RTT client
-LIB=/home/sungwoo/eSACfinal/lib/fstack-dpdk
-AGENT=/home/sungwoo/eSACfinal/agent/libbpftime-agent-hs.so
-BSRV=/home/sungwoo/eSACfinal/agent/libbpftime-syscall-server.so
-UFUNC=/home/sungwoo/eSACfinal/l7/ctl/esac_suricata_dns_ufunc.so
-L4OBJ=/home/sungwoo/eSACfinal/comm_plane/bpf/comm_filter_maskprobe_16k.bpf.o
-L7OBJ=/home/sungwoo/eSACfinal/comm_plane/bpf/comm_filter_maskprobe_16k_hs_gate.bpf.o
-L_TX=/home/sungwoo/eSACfinal/comm_plane/loaders/comm_loader_mlx5tx
-L_RX=/home/sungwoo/eSACfinal/comm_plane/loaders/comm_loader_rxonly
-OFFS=/home/sungwoo/eSACfinal/comm_plane/offsets.json
-IDT=/home/sungwoo/eSACfinal/tamper_sentinel/esac_pidcg_verify.py
-GENPOL=/home/sungwoo/eSACfinal/policy/gen_policy_n.py
-HSCTL=/home/sungwoo/eSACfinal/l7/ctl/esac_hs_ctl_rx_urlhaus
-DOMCTL=/home/sungwoo/eSACfinal/l7/ctl/esac_dom_ctl_bulk
-PATS=/home/sungwoo/eSACfinal/l7/patterns/suricata_dns_patterns.txt
-QCOM=/home/sungwoo/eSACfinal/l7/payloads/dnsq_com.bin; QSU=/home/sungwoo/eSACfinal/l7/payloads/dnsq_su.bin
+DNS=/home/sungwoo/FINAL/traffic/dperf_dns          # DNS flood client / udp server
+ECHO=/home/sungwoo/FINAL/traffic/dperf_probe        # plain echo server
+HIST=/home/sungwoo/FINAL/traffic/dperf_hist   # host1 RTT client
+LIB=/home/sungwoo/FINAL/lib/fstack-dpdk
+AGENT=/home/sungwoo/FINAL/agent/libbpftime-agent-hs.so
+BSRV=/home/sungwoo/FINAL/agent/libbpftime-syscall-server.so
+UFUNC=/home/sungwoo/FINAL/l7/ctl/esac_suricata_dns_ufunc.so
+L4OBJ=/home/sungwoo/FINAL/comm_plane/bpf/comm_filter_maskprobe_16k.bpf.o
+L7OBJ=/home/sungwoo/FINAL/comm_plane/bpf/comm_filter_maskprobe_16k_hs_gate.bpf.o
+L_TX=/home/sungwoo/FINAL/comm_plane/loaders/comm_loader_mlx5tx
+L_RX=/home/sungwoo/FINAL/comm_plane/loaders/comm_loader_rxonly
+OFFS=/home/sungwoo/FINAL/comm_plane/offsets.json
+IDT=/home/sungwoo/FINAL/tamper_sentinel/esac_pidcg_verify.py
+GENPOL=/home/sungwoo/FINAL/policy/gen_policy_n.py
+HSCTL=/home/sungwoo/FINAL/l7/ctl/esac_hs_ctl_rx_urlhaus
+DOMCTL=/home/sungwoo/FINAL/l7/ctl/esac_dom_ctl_bulk
+PATS=/home/sungwoo/FINAL/l7/patterns/suricata_dns_patterns.txt
+QCOM=/home/sungwoo/FINAL/l7/payloads/dnsq_com.bin; QSU=/home/sungwoo/FINAL/l7/payloads/dnsq_su.bin
 H2MAC=3c:fd:fe:c4:93:38       # host2 d9:00.0 PF (inter peer)
 H1VFMAC=02:40:00:00:00:11     # host1 inter VF
-SURI=/home/sungwoo/eSACfinal/suricata/bin/suricata
-SYAML=/home/sungwoo/eSACfinal/suricata/conf/suri_ips.yaml
+SURI=/home/sungwoo/FINAL/suricata/bin/suricata
+SYAML=/home/sungwoo/FINAL/suricata/conf/suri_ips.yaml
 SURILIB=/usr/local/lib/x86_64-linux-gnu
 
 med(){ grep -aE "^pktRx" "$1" 2>/dev/null|awk '{print $2}'|tr -d ,|awk '$1>0'|sort -n|awk '{a[NR]=$1}END{if(NR)print a[int((NR+1)/2)];else print 0}'; }
@@ -204,7 +204,7 @@ C
   local SHM=esac_$(date +%s%N)
   if [ "$REG" = none ]; then
     env -u LD_PRELOAD LD_LIBRARY_PATH="$LIB" timeout 60 "$ECHO" -c "$d/server.conf" > "$d/server.log" 2>&1 & sleep 8
-    env -u LD_PRELOAD LD_LIBRARY_PATH="$LIB" GOWN_HIST_FILE="$d/hist.txt" GOWN_HIST_START_SEC=3 timeout 34 "$HIST" -c "$d/client.conf" > "$d/client.log" 2>&1 & sleep 33
+    env -u LD_PRELOAD LD_LIBRARY_PATH="$LIB" ESAC_HIST_FILE="$d/hist.txt" ESAC_HIST_START_SEC=3 timeout 34 "$HIST" -c "$d/client.conf" > "$d/client.log" 2>&1 & sleep 33
   elif [ "$DIR" = rx ]; then
     export BPFTIME_GLOBAL_SHM_NAME=$SHM
     bash -c 'kill -STOP "$$"; exec env LD_PRELOAD="$1" LD_LIBRARY_PATH="$2" "$3" -c "$4"' _ "$AGENT:$UFUNC" "$LIB" "$ECHO" "$d/server.conf" > "$d/server.log" 2>&1 &
@@ -212,11 +212,11 @@ C
     attach "$srv" rx "$L4OBJ" "$L_RX" "$ECHO" 6 ALLOW "$d" "$SHM"
     [ "$RDY" != YES ] && { echo "NA,NA|ATTACHFAIL"; kill -9 $srv 2>/dev/null; KILL1; return; }
     kill -CONT "$srv"; sleep 8
-    env -u LD_PRELOAD LD_LIBRARY_PATH="$LIB" GOWN_HIST_FILE="$d/hist.txt" GOWN_HIST_START_SEC=3 timeout 34 "$HIST" -c "$d/client.conf" > "$d/client.log" 2>&1 & sleep 33
+    env -u LD_PRELOAD LD_LIBRARY_PATH="$LIB" ESAC_HIST_FILE="$d/hist.txt" ESAC_HIST_START_SEC=3 timeout 34 "$HIST" -c "$d/client.conf" > "$d/client.log" 2>&1 & sleep 33
   else
     env -u LD_PRELOAD LD_LIBRARY_PATH="$LIB" timeout 60 "$ECHO" -c "$d/server.conf" > "$d/server.log" 2>&1 & sleep 8
     export BPFTIME_GLOBAL_SHM_NAME=$SHM
-    bash -c 'kill -STOP "$$"; exec env LD_PRELOAD="$1" LD_LIBRARY_PATH="$2" GOWN_HIST_FILE="$3" GOWN_HIST_START_SEC=3 "$4" -c "$5"' _ "$AGENT:$UFUNC" "$LIB" "$d/hist.txt" "$HIST" "$d/client.conf" > "$d/client.log" 2>&1 &
+    bash -c 'kill -STOP "$$"; exec env LD_PRELOAD="$1" LD_LIBRARY_PATH="$2" ESAC_HIST_FILE="$3" ESAC_HIST_START_SEC=3 "$4" -c "$5"' _ "$AGENT:$UFUNC" "$LIB" "$d/hist.txt" "$HIST" "$d/client.conf" > "$d/client.log" 2>&1 &
     local cli=$!; sleep 1; [ "$(awk '{print $3}' /proc/$cli/stat 2>/dev/null)" != T ] && { echo "NA,NA|NOSTOP"; KILL1; return; }
     attach "$cli" tx "$L4OBJ" "$L_TX" "$HIST" 6 ALLOW "$d" "$SHM"
     [ "$RDY" != YES ] && { echo "NA,NA|ATTACHFAIL"; kill -9 $cli 2>/dev/null; KILL1; return; }
@@ -236,7 +236,7 @@ h2_kill(){ "${H2[@]}" "pkill -9 -x dperf 2>/dev/null; pkill -9 -x dperf_hist_bin
 
 # host2 client launcher (for inter RX). args: dur cpu proto payarg keepalive cps cc
 h2_client(){ local dur=$1 cpu=$2 proto=$3 payarg=$4 ka=$5 cps=$6 cc=$7 bin=$8
-  "${H2[@]}" "env DUR=$dur CPU='$cpu' PROTO=$proto $payarg KEEPALIVE=$ka CPS=$cps CC=$cc SERVER_MAC=$H1VFMAC SOCKET_MEM=0,2048 CLIENT_BIN=$bin HIST_START=3 bash /home/sungwoo/eSACfinal/harness/setup/host2_auto_client_hist.sh" > "$1_h2c.out" 2>&1; }
+  "${H2[@]}" "env DUR=$dur CPU='$cpu' PROTO=$proto $payarg KEEPALIVE=$ka CPS=$cps CC=$cc SERVER_MAC=$H1VFMAC SOCKET_MEM=0,2048 CLIENT_BIN=$bin HIST_START=3 bash /home/sungwoo/FINAL/harness/setup/host2_auto_client_hist.sh" > "$1_h2c.out" 2>&1; }
 
 # INTER throughput cell. REG DIR LAYER CORE OFF PAY CASE outdir
 inter_cell(){ local REG=$1 DIR=$2 LAYER=$3 CORE=$4 OFF=$5 PAY=$6 CASE=$7 d=$8; mkdir -p "$d"
@@ -276,12 +276,12 @@ C
       kill -CONT "$srv"; sleep 8
     fi
     # host2 none client floods
-    "${H2[@]}" "env DUR=24 CPU='$(ccpu $CORE|tr ' ' ,)' PROTO=udp $payarg KEEPALIVE=$(off_ka $OFF) CPS=$(off_cps $OFF) CC=$(off_cc $OFF) SERVER_MAC=$H1VFMAC SOCKET_MEM=0,2048 CLIENT_BIN=/home/sungwoo/eSACfinal/traffic/dperf HIST_START=3 bash /home/sungwoo/eSACfinal/harness/setup/host2_auto_client_hist.sh" > "$d/h2client.out" 2>&1
+    "${H2[@]}" "env DUR=24 CPU='$(ccpu $CORE|tr ' ' ,)' PROTO=udp $payarg KEEPALIVE=$(off_ka $OFF) CPS=$(off_cps $OFF) CC=$(off_cc $OFF) SERVER_MAC=$H1VFMAC SOCKET_MEM=0,2048 CLIENT_BIN=/home/sungwoo/FINAL/traffic/dperf HIST_START=3 bash /home/sungwoo/FINAL/harness/setup/host2_auto_client_hist.sh" > "$d/h2client.out" 2>&1
     KILL1; sleep 2
     echo "$(med "$d/server.log")|$(grep -aoE 'pktTx +[0-9,]+' "$d/h2client.out"|grep -oE '[0-9,]+$'|tr -d ,|sort -n|tail -1)|$(actsum "$d"/loader.log 2>/dev/null)"
   else
     # tx: host1 = client (eSAC mlx5tx if esac), host2 = none server
-    "${H2[@]}" "pkill -9 -x dperf 2>/dev/null; sleep 1; setsid env DUR=50 CPU='$(scpu $CORE|tr ' ' ,)' PROTO=udp $payarg KEEPALIVE=$(off_ka $OFF) CLIENT_MAC=$H1VFMAC OUT=/tmp/h2srv bash /home/sungwoo/eSACfinal/harness/setup/host2_server.sh > /tmp/h2srv.out 2>&1 < /dev/null & echo LAUNCHED" > "$d/h2srv_launch.out" 2>&1
+    "${H2[@]}" "pkill -9 -x dperf 2>/dev/null; sleep 1; setsid env DUR=50 CPU='$(scpu $CORE|tr ' ' ,)' PROTO=udp $payarg KEEPALIVE=$(off_ka $OFF) CLIENT_MAC=$H1VFMAC OUT=/tmp/h2srv bash /home/sungwoo/FINAL/harness/setup/host2_server.sh > /tmp/h2srv.out 2>&1 < /dev/null & echo LAUNCHED" > "$d/h2srv_launch.out" 2>&1
     sleep 13
     cat > "$d/client.conf" <<C
 mode client
@@ -348,8 +348,8 @@ C
       [ "$RDY" != YES ] && { echo "NA,NA|ATTACHFAIL"; kill -9 $srv 2>/dev/null; KILL1; return; }
       kill -CONT "$srv"; sleep 8
     fi
-    "${H2[@]}" "env DUR=30 CPU='$(ccpu $CORE|tr ' ' ,)' PROTO=tcp PAYLOAD=$PAY KEEPALIVE=$(off_ka $OFF) CPS=$(off_cps $OFF) CC=$(off_cc $OFF) SERVER_MAC=$H1VFMAC SOCKET_MEM=0,2048 HIST_START=3 bash /home/sungwoo/eSACfinal/harness/setup/host2_auto_client_hist.sh" > "$d/h2client.out" 2>&1
-    "${H2[@]}" "cat \$(sed -n 's/^HIST_FILE=//p' /tmp/gown40g_auto_client_*/*.out 2>/dev/null|tail -1) 2>/dev/null" > "$d/hist.txt" 2>/dev/null
+    "${H2[@]}" "env DUR=30 CPU='$(ccpu $CORE|tr ' ' ,)' PROTO=tcp PAYLOAD=$PAY KEEPALIVE=$(off_ka $OFF) CPS=$(off_cps $OFF) CC=$(off_cc $OFF) SERVER_MAC=$H1VFMAC SOCKET_MEM=0,2048 HIST_START=3 bash /home/sungwoo/FINAL/harness/setup/host2_auto_client_hist.sh" > "$d/h2client.out" 2>&1
+    "${H2[@]}" "cat \$(sed -n 's/^HIST_FILE=//p' /tmp/esac40g_auto_client_*/*.out 2>/dev/null|tail -1) 2>/dev/null" > "$d/hist.txt" 2>/dev/null
     local cd=$(sed -n 's/^CLIENT_LOG_DIR=//p' "$d/h2client.out"|head -1)
     [ -n "$cd" ] && scp -q -i "$H2KEY" -P 9022 "$H2IP:$cd/hist.txt" "$d/hist.txt" 2>/dev/null
     [ -n "$cd" ] && scp -q -i "$H2KEY" -P 9022 "$H2IP:$cd/client.log" "$d/client.log" 2>/dev/null
@@ -357,7 +357,7 @@ C
     echo "$(hp "$d/hist.txt")|appRtt=$(rttus "$d/client.log")|$(actsum "$d"/loader.log 2>/dev/null)"
   else
     # tx: host2 echo server + host1 hist client (eSAC mlx5tx)
-    "${H2[@]}" "pkill -9 -x dperf 2>/dev/null; sleep 1; setsid env DUR=60 CPU='$(scpu $CORE|tr ' ' ,)' PROTO=tcp PAYLOAD=$PAY KEEPALIVE=$(off_ka $OFF) CLIENT_MAC=$H1VFMAC SERVER_BIN=/home/sungwoo/eSACfinal/traffic/dperf OUT=/tmp/h2srv bash /home/sungwoo/eSACfinal/harness/setup/host2_server.sh > /tmp/h2srv.out 2>&1 < /dev/null & echo LAUNCHED" > "$d/h2srv_launch.out" 2>&1
+    "${H2[@]}" "pkill -9 -x dperf 2>/dev/null; sleep 1; setsid env DUR=60 CPU='$(scpu $CORE|tr ' ' ,)' PROTO=tcp PAYLOAD=$PAY KEEPALIVE=$(off_ka $OFF) CLIENT_MAC=$H1VFMAC SERVER_BIN=/home/sungwoo/FINAL/traffic/dperf OUT=/tmp/h2srv bash /home/sungwoo/FINAL/harness/setup/host2_server.sh > /tmp/h2srv.out 2>&1 < /dev/null & echo LAUNCHED" > "$d/h2srv_launch.out" 2>&1
     sleep 13
     cat > "$d/client.conf" <<C
 mode client
@@ -377,10 +377,10 @@ listen 9 1
 C
     [ "$CORE" = 4 ] && echo rss >> "$d/client.conf"
     if [ "$REG" = none ]; then
-      env -u LD_PRELOAD LD_LIBRARY_PATH="$LIB" GOWN_HIST_FILE="$d/hist.txt" GOWN_HIST_START_SEC=3 timeout 34 "$HIST" -c "$d/client.conf" > "$d/client.log" 2>&1 & sleep 33
+      env -u LD_PRELOAD LD_LIBRARY_PATH="$LIB" ESAC_HIST_FILE="$d/hist.txt" ESAC_HIST_START_SEC=3 timeout 34 "$HIST" -c "$d/client.conf" > "$d/client.log" 2>&1 & sleep 33
     else
       export BPFTIME_GLOBAL_SHM_NAME=$SHM
-      bash -c 'kill -STOP "$$"; exec env LD_PRELOAD="$1" LD_LIBRARY_PATH="$2" GOWN_HIST_FILE="$3" GOWN_HIST_START_SEC=3 "$4" -c "$5"' _ "$AGENT:$UFUNC" "$LIB" "$d/hist.txt" "$HIST" "$d/client.conf" > "$d/client.log" 2>&1 &
+      bash -c 'kill -STOP "$$"; exec env LD_PRELOAD="$1" LD_LIBRARY_PATH="$2" ESAC_HIST_FILE="$3" ESAC_HIST_START_SEC=3 "$4" -c "$5"' _ "$AGENT:$UFUNC" "$LIB" "$d/hist.txt" "$HIST" "$d/client.conf" > "$d/client.log" 2>&1 &
       local cli=$!; sleep 1; [ "$(awk '{print $3}' /proc/$cli/stat 2>/dev/null)" != T ] && { echo "NA,NA|NOSTOP"; KILL1; h2_kill; return; }
       attach "$cli" tx "$L4OBJ" "$L_TX" "$HIST" 6 ALLOW "$d" "$SHM"
       [ "$RDY" != YES ] && { echo "NA,NA|ATTACHFAIL"; kill -9 $cli 2>/dev/null; KILL1; h2_kill; return; }

@@ -2,19 +2,19 @@
 # Autonomous L4 CE sweep campaign: CE6->CE7->CE5->CE4->CE3. inter(f0,host2) + intra(f1,local).
 # modes: inter {none,eSAC,kernel}; intra {none,eSAC} (kernel deferred). pps + RTT p50/p90/p99.
 set +u
-RES=/home/sungwoo/eSACfinal/results/CE_RESULTS; mkdir -p "$RES"
-ROOT=/home/sungwoo/eSACfinal/results/ce_l4_run_$(date +%Y%m%d_%H%M%S); mkdir -p "$ROOT"; echo "$ROOT">/home/sungwoo/eSACfinal/results/.ce_l4_dir
+RES=/home/sungwoo/FINAL/results/CE_RESULTS; mkdir -p "$RES"
+ROOT=/home/sungwoo/FINAL/results/ce_l4_run_$(date +%Y%m%d_%H%M%S); mkdir -p "$ROOT"; echo "$ROOT">/home/sungwoo/FINAL/results/.ce_l4_dir
 PROG=$RES/progress.log; say(){ echo "[$(date +%H:%M:%S)] $*" | tee -a "$PROG"; }
 
-APP=/home/sungwoo/eSACfinal/traffic/dperf_burst128
-LOADER=/home/sungwoo/eSACfinal/comm_plane/loaders/comm_loader_cgroup_maskprobe
-L4=/home/sungwoo/eSACfinal/comm_plane/bpf/comm_filter_maskprobe_16k.bpf.o
-RUN=/home/sungwoo/eSACfinal/harness/ce_l4/auto_case_hist.sh
-RUNNP=/home/sungwoo/eSACfinal/harness/ce_l4/auto_case_hist_np.sh
-SRV=/home/sungwoo/eSACfinal/harness/ce_l4/server_harness_4mode.sh
-SRVNP=/home/sungwoo/eSACfinal/harness/ce_l4/server_harness_4mode_np.sh
-HISTCLI=/home/sungwoo/eSACfinal/traffic/dperf_hist
-LIB=/home/sungwoo/eSACfinal/lib/fstack-dpdk
+APP=/home/sungwoo/FINAL/traffic/dperf_burst128
+LOADER=/home/sungwoo/FINAL/comm_plane/loaders/comm_loader_cgroup_maskprobe
+L4=/home/sungwoo/FINAL/comm_plane/bpf/comm_filter_maskprobe_16k.bpf.o
+RUN=/home/sungwoo/FINAL/harness/ce_l4/auto_case_hist.sh
+RUNNP=/home/sungwoo/FINAL/harness/ce_l4/auto_case_hist_np.sh
+SRV=/home/sungwoo/FINAL/harness/ce_l4/server_harness_4mode.sh
+SRVNP=/home/sungwoo/FINAL/harness/ce_l4/server_harness_4mode_np.sh
+HISTCLI=/home/sungwoo/FINAL/traffic/dperf_hist
+LIB=/home/sungwoo/FINAL/lib/fstack-dpdk
 PF0=0000:3b:00.0; PF1=0000:3b:00.1; IF1=enp59s0f1np1
 INTRA_SVF=; INTRA_CVF=
 
@@ -23,7 +23,7 @@ rep_of1(){ local n; for n in /sys/class/net/*; do [ "$(cat $n/phys_port_name 2>/
 
 prep_vf_inter(){ # create VF 3b:00.3 on f0 if missing
   grep -q 1 /sys/bus/pci/devices/$PF0/sriov_numvfs 2>/dev/null && [ -e /sys/bus/pci/devices/0000:3b:00.3 ] && return 0
-  sudo -n env VF_TTL=14400 bash /home/sungwoo/eSACfinal/harness/setup/host1_vf_prepare.sh > "$ROOT/vfinter.log" 2>&1
+  sudo -n env VF_TTL=14400 bash /home/sungwoo/FINAL/harness/setup/host1_vf_prepare.sh > "$ROOT/vfinter.log" 2>&1
   grep -q '^VF_BDF=0000:3b:00.3$' "$ROOT/vfinter.log"; }
 
 intra_up(){
@@ -93,7 +93,7 @@ server 192.168.1.1 1
 listen 9 1
 C
   [[ "$ccpu" == *" "* ]] && echo rss >> "$o/cl.conf"
-  sudo -n env LD_LIBRARY_PATH=$LIB GOWN_HIST_FILE="$o/hist.txt" GOWN_HIST_START_SEC=3 \
+  sudo -n env LD_LIBRARY_PATH=$LIB ESAC_HIST_FILE="$o/hist.txt" ESAC_HIST_START_SEC=3 \
     timeout $((cdur+10)) "$HISTCLI" -c "$o/cl.conf" > "$o/cl.log" 2>&1
   for i in $(seq 1 90); do [ -e "$o/.done" ] && break; kill -0 $sp 2>/dev/null || break; sleep 1; done
   wait $sp 2>/dev/null; killdp; return 0

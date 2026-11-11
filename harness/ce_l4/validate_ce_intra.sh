@@ -3,7 +3,7 @@
 # Replicates ce_l4_sweep run_one(intra) for 3 cells: none/ALLOW, eSAC/ALLOW, eSAC/DROP.
 # PASS = eSAC-ALLOW pps ~= none & attach OK & hits>0 ; eSAC-DROP pps ~0 (enforcement).
 set -u
-D=/home/sungwoo/eSACfinal
+D=/home/sungwoo/FINAL
 APP=$D/traffic/dperf_burst128
 HISTCLI=$D/traffic/dperf_hist
 LOADER=$D/comm_plane/loaders/comm_loader_cgroup_maskprobe
@@ -49,7 +49,7 @@ server 192.168.1.1 1
 listen 9 1
 rss
 C
-  sudo -n env LD_LIBRARY_PATH=$LIB GOWN_HIST_FILE="$o/hist.txt" GOWN_HIST_START_SEC=3 \
+  sudo -n env LD_LIBRARY_PATH=$LIB ESAC_HIST_FILE="$o/hist.txt" ESAC_HIST_START_SEC=3 \
     timeout $((DUR+12)) "$HISTCLI" -c "$o/cl.conf" > "$o/cl.log" 2>&1
   for i in $(seq 1 60); do [ -e "$o/.done" ] && break; kill -0 $sp 2>/dev/null || break; sleep 1; done
   wait $sp 2>/dev/null

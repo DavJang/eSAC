@@ -1,9 +1,0 @@
- 0x000000000000000e (SONAME)             Library soname: [librte_pcapng.so.25]
-DPDK_25 A
-rte_pcapng_add_interface@@DPDK_25 T
-rte_pcapng_close@@DPDK_25 T
-rte_pcapng_copy@@DPDK_25 T
-rte_pcapng_fdopen@@DPDK_25 T
-rte_pcapng_mbuf_size@@DPDK_25 T
-rte_pcapng_write_packets@@DPDK_25 T
-rte_pcapng_write_stats@@DPDK_25 T

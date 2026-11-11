@@ -3,7 +3,7 @@
 # A: ALLOW-6379 -> PONG ; DROP-6379 -> blocked.  B: tamper openat(/proc/self/mem) -> SIGKILL.
 # STOP/CONT: attach agent+loader while redis is STOPPED (before EAL/PMD poll) so the RX hook is live.
 set -u
-D=/home/sungwoo/eSACfinal
+D=/home/sungwoo/FINAL
 AGENT=$D/agent/libbpftime-agent.so
 SERVER=$D/agent/libbpftime-syscall-server.so
 LOADER=$D/comm_plane/loaders/comm_loader_cgroup_maskprobe

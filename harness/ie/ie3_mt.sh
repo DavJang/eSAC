@@ -1,25 +1,25 @@
 #!/bin/bash
 set +u
 PF=0000:3b:00.1; IF=enp59s0f1np1
-D=/home/sungwoo/eSACfinal/traffic/dperf_probe
-LIB=/home/sungwoo/eSACfinal/lib/fstack-dpdk
-SRV=/home/sungwoo/eSACfinal/harness/setup/run_server_inter.sh
-AGENT_L4=/home/sungwoo/eSACfinal/agent/libbpftime-agent.so
-OBJ_L4=/home/sungwoo/eSACfinal/comm_plane/bpf/comm_filter_maskprobe_16k.bpf.o
-APP=/home/sungwoo/eSACfinal/traffic/dperf_probe
-GUARD=/home/sungwoo/eSACfinal/tamper_sentinel/bin
+D=/home/sungwoo/FINAL/traffic/dperf_probe
+LIB=/home/sungwoo/FINAL/lib/fstack-dpdk
+SRV=/home/sungwoo/FINAL/harness/setup/run_server_inter.sh
+AGENT_L4=/home/sungwoo/FINAL/agent/libbpftime-agent.so
+OBJ_L4=/home/sungwoo/FINAL/comm_plane/bpf/comm_filter_maskprobe_16k.bpf.o
+APP=/home/sungwoo/FINAL/traffic/dperf_probe
+GUARD=/home/sungwoo/FINAL/tamper_sentinel/bin
 ROOT=/home/sungwoo/ie3_mt_$(date +%Y%m%d_%H%M%S); mkdir -p "$ROOT"; echo "$ROOT">/home/sungwoo/.ie3mt_dir
-RES=/home/sungwoo/eSACfinal/results/IE3_RESULTS_20261104.txt
+RES=/home/sungwoo/FINAL/results/IE3_RESULTS_20261104.txt
 LOG=$ROOT/log; HZ=$(getconf CLK_TCK)
 CDUR=600; HOLD=650; SRVD=720; MAXN=3
 say(){ echo "[$(date +%H:%M:%S)] $*"|tee -a "$LOG"; }
 rep_of(){ local n; for n in /sys/class/net/*; do [ "$(cat $n/phys_port_name 2>/dev/null)" = "pf1vf$1" ] && { basename "$n"; return; }; done; }
-killall_gown(){ sudo -n pkill -9 -f run_server_inter 2>/dev/null; sudo -n pkill -9 -x dperf 2>/dev/null; sudo -n pkill -9 -f comm_loader 2>/dev/null; sudo -n pkill -9 -x bpftrace 2>/dev/null; sudo -n pkill -9 -f tamper_sentinel 2>/dev/null; sudo -n pkill -9 -f tamper_sentinel_prologue 2>/dev/null; for cg in /sys/fs/cgroup/esac_inter_*; do sudo -n rmdir "$cg" 2>/dev/null; done; sudo -n rm -f /dev/shm/esac_inter_* 2>/dev/null; sudo -n rm -f /dev/hugepages/dperf-*map_* 2>/dev/null; sleep 2; }
+killall_esac(){ sudo -n pkill -9 -f run_server_inter 2>/dev/null; sudo -n pkill -9 -x dperf 2>/dev/null; sudo -n pkill -9 -f comm_loader 2>/dev/null; sudo -n pkill -9 -x bpftrace 2>/dev/null; sudo -n pkill -9 -f tamper_sentinel 2>/dev/null; sudo -n pkill -9 -f tamper_sentinel_prologue 2>/dev/null; for cg in /sys/fs/cgroup/esac_inter_*; do sudo -n rmdir "$cg" 2>/dev/null; done; sudo -n rm -f /dev/shm/esac_inter_* 2>/dev/null; sudo -n rm -f /dev/hugepages/dperf-*map_* 2>/dev/null; sleep 2; }
 srv_pid(){ grep -aoE 'server_pid=[0-9]+' "$1/run.log" 2>/dev/null|tail -1|cut -d= -f2; }
 pps_of(){ grep -aE '^(tcpRx|pktRx)' "$1/server.log" 2>/dev/null|tr -d ,|awk '{print $2}'|sort -n|tail -1; }
 
 # ---- one-time fabric: 2*MAXN VFs + MACs + tc hairpins ----
-killall_gown
+killall_esac
 sudo -n sh -c "echo 8192 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages" 2>/dev/null
 sudo -n sh -c "echo 0 > /sys/bus/pci/devices/$PF/sriov_numvfs" 2>/dev/null; sleep 2
 sudo -n devlink dev eswitch set pci/$PF mode switchdev 2>/dev/null; sleep 1
@@ -44,7 +44,7 @@ say "fabric VFs=$(cat /sys/bus/pci/devices/$PF/sriov_numvfs)"
 # bring_up <outdir-o> <t> : server + client(3-attempt retry until pps>20000). returns 0 if UP.
 bring_up(){ local o=$1 t=$2 xx; xx=$(printf '%02x' "$t"); mkdir -p "$o/t$t"
   sudo -n env OUT="$o/t$t" S_NIC="${SVF[$t]}" S_IP="192.168.$((90+t)).1" C_IP="192.168.$((90+t)).2" GW_MAC="02:50:00:00:$xx:02" \
-    SCPU=$((5+t)) SOCKET_MEM=512 PAYLOAD=64 PROTO=tcp POLICY_N=32 POL_PROTO=6 HOLD_SEC=$HOLD SRV_DUR=$SRVD WD=0 POLCPU=$((30+t)) \
+    SCPU=$((5+t)) SOCKET_MEM=512 PAYLOAD=64 PROTO=tcp POLICY_N=32 POL_PROTO=6 HOLD_SEC=$HOLD SRV_DUR=$SRVD TAMPER_SENTINEL=0 POLCPU=$((30+t)) \
     eSAC_COMBO_OBJ=$OBJ_L4 eSAC_AGENT_PATH=$AGENT_L4 setsid bash "$SRV" > "$o/t$t.srv.log" 2>&1 &
   local w; for w in $(seq 1 50); do [ -e "$o/t$t/.ready" ]&&break; sleep 1; done
   [ -e "$o/t$t/.ready" ] || { say "    t$t NOT ready"; return 1; }
@@ -61,12 +61,12 @@ bring_up(){ local o=$1 t=$2 xx; xx=$(printf '%02x' "$t"); mkdir -p "$o/t$t"
 
 measure_event(){ local N=$1 o=$2 t srv bp p; local -a wp a b
   for ((t=1;t<=N;t++)); do srv=$(srv_pid "$o/t$t")
-    sudo -n taskset -c $((24+t)) bpftrace --unsafe -e "tracepoint:syscalls:sys_enter_mprotect /pid==$srv && (args->prot & 2)/ { signal(9); } tracepoint:syscalls:sys_enter_openat /pid==$srv/ { if(str(args->filename)==\"/proc/self/mem\"){ signal(9); } }" > "$o/t$t/evwd.log" 2>&1 &
+    sudo -n taskset -c $((24+t)) bpftrace --unsafe -e "tracepoint:syscalls:sys_enter_mprotect /pid==$srv && (args->prot & 2)/ { signal(9); } tracepoint:syscalls:sys_enter_openat /pid==$srv/ { if(str(args->filename)==\"/proc/self/mem\"){ signal(9); } }" > "$o/t$t/tamper_sentinel_ev.log" 2>&1 &
   done
   sleep 8
   for ((t=1;t<=N;t++)); do srv=$(srv_pid "$o/t$t"); wp[$t]=""
     for bp in $(pgrep -x bpftrace); do tr '\0' ' ' </proc/$bp/cmdline 2>/dev/null|grep -qE "pid==$srv[^0-9]" && { wp[$t]=$bp; break; }; done
-    say "  event t$t srv=$srv wd=${wp[$t]} attached=$(grep -qi Attaching "$o/t$t/evwd.log" && echo YES||echo NO) err=$(grep -ciE error "$o/t$t/evwd.log")"
+    say "  event t$t srv=$srv wd=${wp[$t]} attached=$(grep -qi Attaching "$o/t$t/tamper_sentinel_ev.log" && echo YES||echo NO) err=$(grep -ciE error "$o/t$t/tamper_sentinel_ev.log")"
   done
   for ((t=1;t<=N;t++)); do p=${wp[$t]}; a[$t]=$([ -n "$p" ]&&[ -e /proc/$p/stat ]&&awk '{print $14+$15}' /proc/$p/stat||echo NA); done
   sleep 10
@@ -122,7 +122,7 @@ for N in 1 2 3; do
   up=0
   for ((t=1;t<=N;t++)); do bring_up "$o" "$t" && up=$((up+1)); done
   if [ "$up" -lt "$N" ]; then
-    say "N=$N up=$up/$N -> full retry"; killall_gown; o=$ROOT/N${N}r; mkdir -p "$o"; up=0
+    say "N=$N up=$up/$N -> full retry"; killall_esac; o=$ROOT/N${N}r; mkdir -p "$o"; up=0
     for ((t=1;t<=N;t++)); do bring_up "$o" "$t" && up=$((up+1)); done
   fi
   say "N=$N up=$up/$N (proceeding)"
@@ -130,9 +130,9 @@ for N in 1 2 3; do
   measure_event "$N" "$o"
   sleep 3
   measure_poll "$N" "$o"
-  killall_gown
+  killall_esac
 done
-killall_gown
+killall_esac
 sudo -n sh -c "echo 0 > /sys/bus/pci/devices/$PF/sriov_numvfs" 2>/dev/null
 sudo -n devlink dev eswitch set pci/$PF mode legacy 2>/dev/null
 say "=== IE3 MT DONE ==="; echo IE3_ALL_DONE | tee -a "$RES"; touch "$ROOT/.done"

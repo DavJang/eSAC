@@ -1,6 +1,6 @@
 #!/bin/bash
-# GOWN FINAL integrity watchdog — event/syscall design (prof's proposal).
-# Usage: gown_watchdog_event_final.sh <target_pid> [core]
+# eSAC FINAL integrity tamper_sentinel — event/syscall design (prof's proposal).
+# Usage: esac_tamper_sentinel_event_final.sh <target_pid> [core]
 # Watches the tenant PID for the two RO-bypass tamper vectors and SIGKILLs on hit:
 #   - mprotect(..., PROT_WRITE)  (re-protect a RO-mapped hook/policy page to RW)
 #   - openat("/proc/self/mem")   (write RO memory via /proc/self/mem, bypassing page perms)
@@ -11,12 +11,12 @@
 # 22 hook prologue bytes, so it does not verify integrity STATE and cannot catch a
 # tamper that avoids these two syscalls. The professor's full design pairs this with
 # RO-mapping of policy/hook pages (blocks plain-store tamper in hardware) — RO-mapping
-# is NOT yet implemented in the GOWN agent. For state verification, run the optional
-# low-frequency polling backstop (gown_policy_watchdog_cgroup / gown_prologue_watchdog
+# is NOT yet implemented in the eSAC agent. For state verification, run the optional
+# low-frequency polling backstop (esac_policy_tamper_sentinel_cgroup / esac_prologue_tamper_sentinel
 # at a long interval). The measured "~0% CPU" is userspace bpftrace idle and EXCLUDES
 # the per-syscall kernel BPF cost.
 # KNOWN FALSE-POSITIVE: the mprotect(RW) probe fires on the bpftime agent's own JIT/hook
-# mprotect (making code pages RW). Attach this watchdog only AFTER the target reaches steady
+# mprotect (making code pages RW). Attach this tamper_sentinel only AFTER the target reaches steady
 # state (past init/JIT), else it SIGKILLs the tenant during startup (seen at 4+ lcores).
 set -u
 PID=${1:?target pid}

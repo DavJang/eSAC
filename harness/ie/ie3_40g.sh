@@ -1,15 +1,15 @@
 #!/bin/bash
 set +u
 PF=0000:3b:00.1; IF=enp59s0f1np1
-DPROBE=/home/sungwoo/eSACfinal/traffic/dperf_probe
-LIB=/home/sungwoo/eSACfinal/lib/fstack-dpdk
-SRV=/home/sungwoo/eSACfinal/harness/setup/run_server_inter.sh
-OBJ_L4=/home/sungwoo/eSACfinal/comm_plane/bpf/comm_filter_maskprobe_16k.bpf.o
-AGENT_L4=/home/sungwoo/eSACfinal/agent/libbpftime-agent.so
-APP=/home/sungwoo/eSACfinal/traffic/dperf_probe
-GUARD=/home/sungwoo/eSACfinal/tamper_sentinel/bin
+DPROBE=/home/sungwoo/FINAL/traffic/dperf_probe
+LIB=/home/sungwoo/FINAL/lib/fstack-dpdk
+SRV=/home/sungwoo/FINAL/harness/setup/run_server_inter.sh
+OBJ_L4=/home/sungwoo/FINAL/comm_plane/bpf/comm_filter_maskprobe_16k.bpf.o
+AGENT_L4=/home/sungwoo/FINAL/agent/libbpftime-agent.so
+APP=/home/sungwoo/FINAL/traffic/dperf_probe
+GUARD=/home/sungwoo/FINAL/tamper_sentinel/bin
 ROOT=/home/sungwoo/ie3_40g_$(date +%Y%m%d_%H%M%S); mkdir -p "$ROOT"; echo "$ROOT" > /home/sungwoo/.ie3_dir
-RES=/home/sungwoo/eSACfinal/results/IE3_RESULTS_20261104.txt
+RES=/home/sungwoo/FINAL/results/IE3_RESULTS_20261104.txt
 LOG=$ROOT/log
 HZ=$(getconf CLK_TCK)
 say(){ echo "[$(date +%H:%M:%S)] $*" | tee -a "$LOG"; }
@@ -52,7 +52,7 @@ start_tenant(){ local idx=$1; local sv=$((2*(idx-1))) cv=$((2*(idx-1)+1))
   local cvf=$(basename $(readlink -f /sys/bus/pci/devices/$PF/virtfn$cv))
   local smac=$(printf '02:50:00:00:0%d:01' "$idx"); local cmac=$(printf '02:50:00:00:0%d:02' "$idx")
   local sip=192.168.9${idx}.1 cip=192.168.9${idx}.2; mkdir -p "$ROOT/t$idx"
-  sudo -n env OUT="$ROOT/t$idx" S_NIC="$svf" S_IP=$sip C_IP=$cip GW_MAC=$cmac SCPU=${SERVER_CPUS[$idx]} SOCKET_MEM=512 PAYLOAD=64 PROTO=tcp POLICY_N=32 POL_PROTO=6 HOLD_SEC=240 SRV_DUR=300 WD=0 eSAC_COMBO_OBJ=$OBJ_L4 eSAC_AGENT_PATH=$AGENT_L4 setsid bash "$SRV" > "$ROOT/t$idx.srv.log" 2>&1 &
+  sudo -n env OUT="$ROOT/t$idx" S_NIC="$svf" S_IP=$sip C_IP=$cip GW_MAC=$cmac SCPU=${SERVER_CPUS[$idx]} SOCKET_MEM=512 PAYLOAD=64 PROTO=tcp POLICY_N=32 POL_PROTO=6 HOLD_SEC=240 SRV_DUR=300 TAMPER_SENTINEL=0 eSAC_COMBO_OBJ=$OBJ_L4 eSAC_AGENT_PATH=$AGENT_L4 setsid bash "$SRV" > "$ROOT/t$idx.srv.log" 2>&1 &
   local ok=NO; for w in $(seq 1 70); do [ -e "$ROOT/t$idx/.ready" ] && { ok=YES; break; }; sleep 1; done
   if [ "$ok" != YES ]; then say "tenant$idx READY=NO"; grep -aE 'FAIL' "$ROOT/t$idx/run.log" 2>/dev/null|tee -a "$LOG"; return 1; fi
   printf 'mode client\ncpu %s\nduration 240s\ncps 100\ncc 100\nkeepalive 1ms\npayload_size 64\nprotocol tcp\nsocket_mem 512\nport %s %s %s %s\nclient %s 1\nserver %s 1\nlisten 9 1\n' "${CLIENT_CPUS[$idx]}" "$cvf" "$cip" "$sip" "$smac" "$cip" "$sip" > "$ROOT/t$idx/cl.conf"
@@ -62,13 +62,13 @@ echo WROTE_PART1
 
 measure_event(){ local N=$1 idx srv; local -a wp a b
   for idx in $(seq 1 $N); do srv=$(srv_pid $idx)
-    sudo -n taskset -c ${EVWD_CPUS[$idx]} bpftrace --unsafe -e "tracepoint:syscalls:sys_enter_mprotect /pid==$srv && (args->prot & 2)/ { signal(9); } tracepoint:syscalls:sys_enter_openat /pid==$srv/ { if(str(args->filename)==\"/proc/self/mem\"){ signal(9); } }" > "$ROOT/t$idx/evwd.log" 2>&1 &
+    sudo -n taskset -c ${EVWD_CPUS[$idx]} bpftrace --unsafe -e "tracepoint:syscalls:sys_enter_mprotect /pid==$srv && (args->prot & 2)/ { signal(9); } tracepoint:syscalls:sys_enter_openat /pid==$srv/ { if(str(args->filename)==\"/proc/self/mem\"){ signal(9); } }" > "$ROOT/t$idx/tamper_sentinel_ev.log" 2>&1 &
   done
   sleep 8
   for idx in $(seq 1 $N); do srv=$(srv_pid $idx); wp[$idx]=""
     for bp in $(pgrep -x bpftrace); do tr '\0' ' ' </proc/$bp/cmdline 2>/dev/null | grep -qE "pid==$srv[^0-9]" && { wp[$idx]=$bp; break; }; done
-    local at=$(grep -qi Attaching "$ROOT/t$idx/evwd.log" && echo YES || echo NO)
-    say "  event t$idx srv=$srv wd_pid=${wp[$idx]} attached=$at err=$(grep -ciE 'error' $ROOT/t$idx/evwd.log)"
+    local at=$(grep -qi Attaching "$ROOT/t$idx/tamper_sentinel_ev.log" && echo YES || echo NO)
+    say "  event t$idx srv=$srv tamper_sentinel_pid=${wp[$idx]} attached=$at err=$(grep -ciE 'error' $ROOT/t$idx/tamper_sentinel_ev.log)"
   done
   for idx in $(seq 1 $N); do local p=${wp[$idx]}; a[$idx]=$([ -n "$p" ]&&[ -e /proc/$p/stat ]&&awk '{print $14+$15}' /proc/$p/stat||echo NA); done
   sleep 10

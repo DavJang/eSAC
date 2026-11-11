@@ -1,6 +1,0 @@
- 0x000000000000000e (SONAME)             Library soname: [librte_mempool_cnxk.so.25]
-DPDK_25 A
-EXPERIMENTAL A
-rte_pmd_cnxk_mempool_is_hwpool@@EXPERIMENTAL T
-rte_pmd_cnxk_mempool_mbuf_exchange@@EXPERIMENTAL T
-rte_pmd_cnxk_mempool_range_check_disable@@EXPERIMENTAL T

@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 pf=0000:3b:00.0
 iface=enp59s0f0np0
-marker=/tmp/gown40g_host1_vf_failsafe.marker
+marker=/tmp/esac40g_host1_vf_failsafe.marker
 ttl=${VF_TTL:-300}
 if ! [[ $ttl =~ ^[0-9]+$ ]] || (( ttl < 60 || ttl > 14400 )); then
     echo 'VF_TTL must be 60..14400 seconds' >&2; exit 1
@@ -22,8 +22,8 @@ fi
 # Recovery survives an SSH disconnect. The marker is removed after normal teardown.
 token="$(date +%s%N)-$$"
 printf '%s\n' "$token" > "$marker"
-nohup bash -c 'sleep "$1"; if [[ $(cat /tmp/gown40g_host1_vf_failsafe.marker 2>/dev/null || true) == "$2" ]]; then echo 0 > /sys/bus/pci/devices/0000:3b:00.0/sriov_numvfs; rm -f /tmp/gown40g_host1_vf_failsafe.marker; fi' _ "$ttl" "$token" \
-    >/tmp/gown40g_host1_vf_failsafe.log 2>&1 </dev/null &
+nohup bash -c 'sleep "$1"; if [[ $(cat /tmp/esac40g_host1_vf_failsafe.marker 2>/dev/null || true) == "$2" ]]; then echo 0 > /sys/bus/pci/devices/0000:3b:00.0/sriov_numvfs; rm -f /tmp/esac40g_host1_vf_failsafe.marker; fi' _ "$ttl" "$token" \
+    >/tmp/esac40g_host1_vf_failsafe.log 2>&1 </dev/null &
 echo "FAILSAFE_PID=$!"
 
 echo 1 > "/sys/bus/pci/devices/$pf/sriov_numvfs"

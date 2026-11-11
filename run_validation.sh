@@ -2,9 +2,9 @@
 # eSACfinal acceptance test: proves the self-contained tree runs WITHOUT any other /home/sungwoo dir.
 #   1) CE-L4 intra microbench : none vs eSAC(ALLOW) vs eSAC(DROP)  [dperf + comm-plane]
 #   2) fstack real-app        : ALLOW->PONG / DROP->blocked / tamper->SIGKILL  [unmodified Redis]
-# Run as:  bash /home/sungwoo/eSACfinal/run_validation.sh
+# Run as:  bash /home/sungwoo/FINAL/run_validation.sh
 set -u
-D=/home/sungwoo/eSACfinal
+D=/home/sungwoo/FINAL
 echo "########################################################################"
 echo "# eSACfinal validation  $(date)"
 echo "########################################################################"
